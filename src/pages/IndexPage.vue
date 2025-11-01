@@ -1,6 +1,35 @@
 <template>
   <q-page padding>
-    <div class="row q-gutter-md q-mb-md">
+    <div>
+      <q-input
+        filled
+        v-model="nombre"
+        label="Nombre"
+        style="width: 300px; padding-bottom: 20px"
+      />
+    </div>
+    <div>
+      <q-input
+        filled
+        v-model="dui"
+        label="DUI"
+        mask="########-#"
+        style="width: 300px; padding-bottom: 20px"
+      />
+    </div>
+    <div>
+      <q-input
+        filled
+        v-model="gmail"
+        label="Correo Electrónico"
+        @blur="gmail = (gmail && !gmail.endsWith('@gmail.com')) ? gmail.replace(/@.*$/, '') + '@gmail.com' : gmail"
+        type="email"
+        hint="usuario@gmail.com"
+        style="width: 300px"
+      />
+    </div>
+    <q-space/>
+    <div class="row q-gutter-md q-mb-md q-mt-md">
       <q-select
         filled
         v-model="productoSeleccionado"
@@ -107,6 +136,9 @@ const filasVenta = ref([])
 const enviando = ref(false)
 const productoSeleccionado = ref(null)
 const opcionesFiltradas = ref([])
+const gmail = ref(null)
+const nombre = ref(null)
+const dui = ref(null)
 
 
 async function filterFn (val, update) {
@@ -195,7 +227,10 @@ const enviarDatos = async () => {
   try {
     const payload = {
       items: filasVenta.value,
-      total: totalVenta.value
+      total: totalVenta.value,
+      nombre: nombre.value,
+      dui: dui.value,
+      correo_electronico: gmail.value
     }
 
     const response = await axios.post(
