@@ -35,6 +35,7 @@ const columns = [
   { name: 'Nombre', required: true, label: 'NOMBRE', align: 'left', field: 'Nombre', sortable: true },
   { name: 'SKU', align: 'center', label: 'SKU', field: 'SKU', sortable: true },
   { name: 'PrecioVenta', label: 'PRECIO VENTA', field: 'PrecioVenta', sortable: true },
+  { name: 'PrecioCosto', label: 'PRECIO COSTO', field: 'PrecioCosto', sortable: true},
   { name: 'CuentaInventario', label: 'CUENTA INVENTARIO', field: 'CuentaInventario', sortable: true },
   { name: 'CuentaImpuesto', label: 'CUENTA IMPUESTO', field: 'CuentaImpuesto', sortable: true },
   { name: 'CuentaIngreso', label: 'CUENTA INGRESO', field: 'CuentaIngreso', sortable: true },
@@ -43,22 +44,22 @@ const columns = [
 ]
 
 const rows = ref([
-  { Nombre: 'Laptop Dell XPS 15', SKU: 'LAP-DEL-XPS15', PrecioVenta: 1500.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  { Nombre: 'Laptop Dell XPS 15', SKU: 'LAP-DEL-XPS15', PrecioVenta: 1500.00, PrecioCosto: 1000, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
     Descripcion: 'Laptop Dell XPS 15 con procesador Intel Core i7-1165G7, 16GB de RAM, 512GB de SSD y 15.6" de pantalla. Con sistema operativo Windows 11' },
 
-  { Nombre: 'Smartphone Samsung Galaxy S21', SKU: 'SMA-GAL-S21', PrecioVenta: 799.99, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  { Nombre: 'Smartphone Samsung Galaxy S21', SKU: 'SMA-GAL-S21', PrecioVenta: 799.99, PrecioCosto: 500, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
     Descripcion: 'Smartphone Samsung Galaxy S21 con pantalla de 6.2",'},
 
-  { Nombre: 'Cargador de 10000 mAh', SKU: 'CAR-10000', PrecioVenta: 100.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  { Nombre: 'Cargador de 10000 mAh', SKU: 'CAR-10000', PrecioVenta: 100.00, PrecioCosto:50, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
   Descripcion: 'Cargador de 10000 mAh para smartphone Samsung Galaxy S21' },
 
-  {Nombre: 'Billetera de cuero', SKU: 'BIL-CUER', PrecioVenta: 100.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  {Nombre: 'Billetera de cuero', SKU: 'BIL-CUER', PrecioVenta: 100.00, PrecioCosto:50, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
   Descripcion: 'Billetera de cuero de 100 euros' },
 
-  {Nombre: 'Camiseta de manga corta', SKU: 'CAM-COR', PrecioVenta: 15.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  {Nombre: 'Camiseta de manga corta', SKU: 'CAM-COR', PrecioVenta: 15.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
   Descripcion: 'Camiseta de manga corta de 100 euros' },
 
-  {Nombre: 'Camiseta de manga larga', SKU: 'CAM-LAR', PrecioVenta: 20.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  {Nombre: 'Camiseta de manga larga', SKU: 'CAM-LAR', PrecioVenta: 20.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
   Descripcion: 'Camiseta de manga larga de 100 euros' },
 
 ])
@@ -74,6 +75,7 @@ const enviarDatos = async () => {
       nombre: r.Nombre,
       sku: r.SKU,
       precio_venta: r.PrecioVenta,
+      precio_costo: r.PrecioCosto,
       cuenta_inventario: r.CuentaInventario,
       cuenta_impuesto: r.CuentaImpuesto,
       cuenta_ingreso: r.CuentaIngreso,

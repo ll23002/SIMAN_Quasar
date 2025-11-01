@@ -169,6 +169,7 @@ function agregarProducto () {
     productoExistente.cantidad++
   } else {
     filasVenta.value.push({
+      producto_id: producto.id,
       name: producto.label,
       precio: parseFloat(producto.precio),
       cantidad: 1
@@ -198,7 +199,7 @@ const enviarDatos = async () => {
     }
 
     const response = await axios.post(
-      'http://localhost:8000/api/contabilidad/aún/me/falta/esto', payload)
+      'http://localhost:8000/api/contabilidad/ventas/registrar/', payload)
 
     console.log('¡Venta registrada con éxito!', response.data)
     alert('¡Éxito! Venta registrada.')
