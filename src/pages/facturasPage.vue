@@ -57,6 +57,11 @@ const columns = [
     align: 'left',
     field: 'cliente_nombre',
     sortable: true,
+  },
+  {
+    name: 'acciones',
+    label: 'ACCIONES',
+    align: 'center',
   }
 ]
 
@@ -126,6 +131,17 @@ onMounted(() => {
                   dense
                   @click="toggleExpand(props.row.id)"
                   :icon="isExpanded(props.row.id) ? 'remove' : 'add'"
+                />
+              </template>
+              <template v-else-if="col.name === 'acciones'">
+                <q-btn
+                  icon="picture_as_pdf"
+                  color="red"
+                  flat
+                  dense
+                  :href="`http://localhost:8000/api/contabilidad/factura/${props.row.id}/pdf/`"
+                  target="_blank"
+                  aria-label="Descargar PDF"
                 />
               </template>
               <template v-else>
