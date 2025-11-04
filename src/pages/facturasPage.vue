@@ -99,6 +99,7 @@ onMounted(() => {
         :rows="rows"
         :columns="columns"
         row-key="id"
+        fullscreen
       >
 
         <template v-slot:body-cell-expand="props">
@@ -139,27 +140,34 @@ onMounted(() => {
                 <div class="text-h6">Detalles de la Factura: {{ props.row.numero_factura }}</div>
 
                 <q-list bordered separator class="q-mt-sm">
-                  <q-item dense class="bg-grey-3">
-                    <q-item-section><strong>Producto</strong></q-item-section>
-                    <q-item-section side><strong>Cantidad</strong></q-item-section>
-                    <q-item-section side><strong>Precio Unit.</strong></q-item-section>
-                    <q-item-section side><strong>Subtotal</strong></q-item-section>
-                  </q-item>
+                  <q-markup-table flat dense>
+                    <thead>
+                    <tr>
+                      <th class="text-left">Producto</th>
+                      <th class="text-right">Cantidad</th>
+                      <th class="text-right">Precio/Unit.</th>
+                      <th class="text-right">Subtotal</th>
+                    </tr>
+                    </thead>
 
-                  <q-item v-for="detalle in props.row.detalles" :key="detalle.producto">
-                    <q-item-section>
-                      <q-item-label>{{ detalle.producto }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-item-label>{{ detalle.cantidad }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-item-label>${{ parseFloat(detalle.precio_unitario).toFixed(2) }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-item-label>${{ parseFloat(detalle.subtotal_linea).toFixed(2) }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
+                    <tbody>
+                    <tr v-for="detalle in props.row.detalles" :key="detalle.producto">
+
+                      <td class="text-left">{{ detalle.producto }}</td>
+
+                      <td class="text-right">{{ detalle.cantidad }}</td>
+
+                      <td class="text-right">
+                        ${{ parseFloat(detalle.precio_unitario).toFixed(2) }}
+                      </td>
+
+                      <td class="text-right">
+                        ${{ parseFloat(detalle.subtotal_linea).toFixed(2) }}
+                      </td>
+
+                    </tr>
+                    </tbody>
+                  </q-markup-table>
                 </q-list>
 
               </div>
