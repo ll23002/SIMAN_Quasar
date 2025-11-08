@@ -79,6 +79,9 @@ onMounted(() => {
 <template>
   <q-page padding>
     <div class="q-pa-md">
+      <div class="q-pa-md">
+        <h1>Aún faltan partidas de ajustes y cierre</h1>
+      </div>
       <q-table
         flat bordered
         title="Libro Diario"

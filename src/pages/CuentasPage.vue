@@ -1,5 +1,8 @@
 <template>
   <q-page padding>
+    <div class="q-pa-md">
+      <h1>Aún falta</h1>
+    </div>
     <q-btn
       label="Enviar datos"
       @click="enviarDatos"

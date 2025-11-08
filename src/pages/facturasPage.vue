@@ -104,7 +104,6 @@ onMounted(() => {
         :rows="rows"
         :columns="columns"
         row-key="id"
-        fullscreen
       >
 
         <template v-slot:body-cell-expand="props">
