@@ -61,6 +61,9 @@ const rows = ref([
   {Nombre: 'Camiseta de manga larga', SKU: 'CAM-LAR', PrecioVenta: 20.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
   Descripcion: 'Camiseta de manga larga de 100 euros' },
 
+  {Nombre: 'Almohada Tamaño Real de Gardevoir', SKU: 'GAR-ATR',PrecioVenta: 200.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  Descripcion: 'Una almohada para que te acompañe siempre'}
+
 ])
 
 const pagination = ref({
