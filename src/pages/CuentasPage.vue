@@ -61,31 +61,11 @@
       <q-btn label="Enviar datos" @click="enviarDatos" color="primary" />
     </div>
 
-    <div class="q-pa-md">
-      <q-table
-        class="my-sticky-header-column-table"
-        flat
-        bordered
-        title="Treats"
-        dense
-        :rows="rows"
-        :columns="columns"
-        row-key="codigo"
-        hide-bottom
-        v-model:pagination="pagination"
-      >
-        <template v-slot:body-cell-Descripcion="props">
-          <q-td :props="props">
-            <div class="desc-cell">{{ props.row.Descripcion }}</div>
-          </q-td>
-        </template>
-      </q-table>
-    </div>
   </q-page>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
 
 const Data = ref([])
@@ -94,49 +74,94 @@ const Codigo = ref()
 const Tipo = ref('ACTIVO')
 const Naturaleza = ref('DEUDORA')
 const Movimientos = ref('SI')
-const CuentaPadre = ref('SIN CUENTA PADRE')
 const Descripcion = ref()
-const columns = [
-  {
-    name: 'Nombre',
-    required: true,
-    label: 'NOMBRE',
-    align: 'left',
-    field: 'Nombre',
-    sortable: true,
-  },
-  { name: 'Codigo', align: 'center', label: 'CODIGO', field: 'Codigo', sortable: true },
-  { name: 'Tipo', label: 'TIPO', field: 'Tipo', sortable: true },
-  { name: 'Naturaleza', label: 'NATURALEZA', field: 'Naturaleza', sortable: true },
-  { name: 'Movimientos', label: 'MOVIMIENTOS', field: 'Movimientos', sortable: true },
-  { name: 'CuentaPadre', label: 'CUENTA PADRE', field: 'CuentaPadre', sortable: true },
-  {
-    name: 'Descripcion',
-    label: 'DESCRIPCIÓN',
-    field: 'Descripcion',
-    align: 'left',
-    sortable: true,
-  },
-]
 
-const rows = ref([])
+const sinCuentaPadre = { id: null, nombre: 'SIN CUENTA PADRE', codigo: '' }
+const CuentaPadre = ref(sinCuentaPadre)
+const codigoPrefijo = ref('')
 
-const pagination = ref({
-  page: 1,
-  rowsPerPage: rows.value.length,
+watch(CuentaPadre, (newVal) => {
+  if (newVal && newVal.codigo) {
+    codigoPrefijo.value = newVal.codigo
+    Codigo.value = newVal.codigo
+  } else {
+    codigoPrefijo.value = ''
+    Codigo.value = ''
+  }
 })
+
+watch(Codigo, (newValue, oldValue) => {
+  const prefijo = codigoPrefijo.value
+  const val = newValue || ''
+
+  if (prefijo === '') {
+    if (!/^\d*$/.test(val)) {
+      Codigo.value = oldValue
+      return
+    }
+
+    if (val.length > 2) {
+      Codigo.value = oldValue
+      return
+    }
+
+    const codeExists = Data.value.some(
+      (cuenta) => cuenta.codigo === val && cuenta.codigo !== '',
+    )
+
+    if (codeExists) {
+      console.warn(`El código "${val}" ya existe.`)
+      Codigo.value = ''
+      return
+    }
+  }
+  else {
+    if (!val.startsWith(prefijo)) {
+      Codigo.value = prefijo
+      return
+    }
+
+    const suffijo = val.substring(prefijo.length)
+
+
+    if (!/^\d*$/.test(suffijo)) {
+      Codigo.value = oldValue
+      return
+    }
+
+    if (suffijo.length > 2) {
+      Codigo.value = oldValue
+      return
+    }
+
+    if (suffijo.length > 0) {
+      const fullCode = prefijo + suffijo
+      const codeExists = Data.value.some((cuenta) => cuenta.codigo === fullCode)
+      if (codeExists) {
+        console.warn(`El código "${fullCode}" ya existe.`)
+        Codigo.value = oldValue
+        return
+      }
+    }
+  }
+})
+
+
+
+
 
 const enviarDatos = async () => {
   try {
-    const cuentas = rows.value.map((r) => ({
-      nombre: r.Nombre,
-      codigo: r.Codigo,
-      tipo_cuenta: r.Tipo,
-      naturaleza: r.Naturaleza,
-      descripcion: r.Descripcion,
-      permite_movimientos: r.Movimientos.toUpperCase() === 'SI',
-      cuenta_padre_codigo: r.CuentaPadre,
-    }))
+    const cuentas =[{
+      nombre: Nombre.value,
+      codigo: Codigo.value,
+      tipo_cuenta: Tipo.value,
+      naturaleza: Naturaleza.value === 'DEUDORA' ? 'D' : 'C',
+      descripcion: Descripcion.value,
+      permite_movimientos: Movimientos.value === 'SI',
+      cuenta_padre_codigo: CuentaPadre.value.codigo },
+    ]
+
 
     const response = await axios.post(
       'http://localhost:8000/api/contabilidad/cuentas/crear/',
@@ -154,17 +179,18 @@ const enviarDatos = async () => {
 const obtenerCuentasPadre = async () => {
   try {
     const response = await axios.get('http://localhost:8000/api/contabilidad/obtener/cuentas_padre/')
-    Data.value = response.data.map(item => {
+    const mappedData = response.data.map(item => {
       const c = item.cuenta ?? item
       return {
         id: c.id,
         nombre: c.nombre,
         codigo: c.codigo
       }
-      })
+    })
+    Data.value = [sinCuentaPadre, ...mappedData]
   } catch (error) {
     console.error('Error obteniendo cuentas padre:', error)
-    rows.value = []
+    Data.value = [sinCuentaPadre]
   }
 }
 
