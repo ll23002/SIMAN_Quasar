@@ -16,6 +16,17 @@
       >
         <q-scroll-area style="height: calc(100% - 150px); margin-top: 150px; border-right: 1px solid #ddd">
           <q-list padding>
+            <q-item clickable v-ripple :to="{name:'inicio'}">
+              <q-item-section avatar>
+                <q-icon name="inbox" />
+              </q-item-section>
+              <q-item-section>
+                Inicio
+              </q-item-section>
+            </q-item>
+
+
+
             <q-item clickable v-ripple :to="{ name: 'facturas' }">
               <q-item-section avatar>
                 <q-icon name="inbox" />
@@ -26,7 +37,7 @@
               </q-item-section>
             </q-item>
 
-            <q-item active clickable v-ripple :to="{ name: 'cuentas' }">
+            <q-item clickable v-ripple :to="{ name: 'cuentas' }">
               <q-item-section avatar>
                 <q-icon name="star" />
               </q-item-section>
