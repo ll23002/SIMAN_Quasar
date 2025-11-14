@@ -1,123 +1,171 @@
 <template>
   <q-page padding>
-    <q-btn
-      label="Enviar datos"
-      @click="enviarDatos"
-      color="primary"
-    />
-    <div class="q-pa-md">
-      <q-table
-        class="my-sticky-header-column-table"
-        flat bordered
-        title="Treats"
-        dense
-        :rows="rows"
-        :columns="columns"
-        row-key="codigo"
-        hide-bottom
-        v-model:pagination="pagination"
-      >
-        <template v-slot:body-cell-Descripcion="props">
-        <q-td :props="props">
-          <div class="desc-cell">{{ props.row.Descripcion }}</div>
-        </q-td>
-        </template>
-      </q-table>
+    <div class="q-pa-md row q-gutter-md border-rounded shadow-2">
+      <div class="col-12 col-md-5">
+        <q-input
+          type="text"
+          v-model="Nombre"
+          placeholder="Nombre"
+          class="full-width q-mb-md"
+          outlined
+        />
+        <q-input
+          type="text"
+          v-model="Codigo"
+          placeholder="Codigo"
+          class="full-width q-mb-md"
+          outlined
+        />
+        <q-select
+          v-model="Tipo"
+          :options="['ACTIVO', 'PASIVO', 'INGRESO', 'PATRIMONIO', 'COSTO']"
+          placeholder="Tipo"
+          class="full-width q-mb-md"
+          outlined
+        />
+        <q-select
+          v-model="Naturaleza"
+          :options="['DEUDORA', 'ACREEDORA']"
+          placeholder="Naturaleza"
+          class="full-width q-mb-md"
+          outlined
+        />
+      </div>
+      <q-space />
+      <div class="col-12 col-md-6">
+        <q-select
+          v-model="Movimientos"
+          :options="['SI', 'NO']"
+          placeholder="Movimientos"
+          class="full-width q-mb-md"
+          outlined
+        />
+        <q-select
+          v-model="CuentaPadre"
+          placeholder="CuentaPadre"
+          :options="Data"
+          option-label="nombre"
+          class="full-width q-mb-md"
+          outlined
+        />
+        <q-input
+          type="textarea"
+          v-model="Descripcion"
+          placeholder="Descripcion"
+          class="full-width q-mb-md"
+          outlined
+        />
+      </div>
+    </div>
+    <div class="q-pt-lg">
+      <q-btn label="Enviar datos" @click="enviarDatos" color="primary" />
     </div>
 
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
-const columns = [
-  { name: 'Nombre', required: true, label: 'NOMBRE', align: 'left', field: 'Nombre', sortable: true },
-  { name: 'Codigo', align: 'center', label: 'CODIGO', field: 'Codigo', sortable: true },
-  { name: 'Tipo', label: 'TIPO', field: 'Tipo', sortable: true },
-  { name: 'Naturaleza', label: 'NATURALEZA', field: 'Naturaleza', sortable: true },
-  { name: 'Movimientos', label: 'MOVIMIENTOS', field: 'Movimientos', sortable: true },
-  { name: 'CuentaPadre', label: 'CUENTA PADRE', field: 'CuentaPadre', sortable: true },
-  { name: 'Descripcion', label: 'DESCRIPCIÓN', field: 'Descripcion', align: 'left', sortable: true}
-]
 
-const rows = ref([
-  { Nombre: 'Activo', Codigo: '1' , Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: null,
-    Descripcion: 'Representa todos los bienes y derechos propiedad de la empresa' },
+const Data = ref([])
+const Nombre = ref()
+const Codigo = ref()
+const Tipo = ref('ACTIVO')
+const Naturaleza = ref('DEUDORA')
+const Movimientos = ref('SI')
+const Descripcion = ref()
 
-  { Nombre: 'Activo Corriente', Codigo: '11', Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: 1 ,
-    Descripcion: 'Agrupa los activos que se espera convertir en efectivo o consumir en el ciclo normal de operaciones'},
+const sinCuentaPadre = { id: null, nombre: 'SIN CUENTA PADRE', codigo: '' }
+const CuentaPadre = ref(sinCuentaPadre)
+const codigoPrefijo = ref('')
 
-  { Nombre: 'Efectivo y Equivalentes', Codigo: '1101', Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: 11,
-  Descripcion: 'Fondos disponibles de forma inmediata (caja, bancos, inversiones a corto plazo)'},
-
-  { Nombre: 'Caja General', Codigo: '1101.01', Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'SI', CuentaPadre: 1101 ,
-  Descripcion: 'Registra el dinero físico disponible en la oficina o punto de venta para gastos menores o ingresos del día'},
-
-  { Nombre: 'Inventarios', Codigo: '1102', Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: 11 ,
-  Descripcion: 'Agrupa las mercancías o productos destinados a la venta.'},
-
-  { Nombre: 'Inventario de Mercadería', Codigo: '1102.01', Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'SI', CuentaPadre: 1102,
-  Descripcion: 'Registra el valor de las existencias de productos listos para la venta. Se carga al comprar y se abona al vender'},
-
-  { Nombre: 'Activo No Corriente', Codigo: '12', Tipo: 'ACTIVO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: 1,
-  Descripcion: 'Agrupa activos a largo plazo, como propiedades, planta y equipo'},
-
-  { Nombre: 'Pasivo', Codigo: '2', Tipo: 'PASIVO', Naturaleza: 'C', Movimientos: 'NO', CuentaPadre: null,
-  Descripcion: 'Representa todas las deudas y obligaciones de la empresa'},
-
-  { Nombre: 'Pasivo Corriente', Codigo: '21', Tipo: 'PASIVO', Naturaleza: 'C', Movimientos: 'NO', CuentaPadre: 2,
-  Descripcion: 'Agrupa obligaciones que deben liquidarse en un plazo menor a un año'},
-
-  { Nombre: 'Impuestos por Pagar', Codigo: '2101', Tipo: 'PASIVO', Naturaleza: 'C', Movimientos: 'NO', CuentaPadre: 21,
-  Descripcion: 'Deudas generadas por impuestos retenidos o cobrados a terceros y aún no pagados al gobierno'},
-
-  { Nombre: 'IVA Débito Fiscal', Codigo: '2101.01', Tipo: 'PASIVO', Naturaleza: 'C', Movimientos: 'SI', CuentaPadre: 2101,
-  Descripcion: 'IVA que la empresa cobra a sus clientes por las ventas. Representa una obligación a pagar al fisco'},
-
-  { Nombre: 'Patrimonio', Codigo: '3', Tipo: 'PATRIMONIO', Naturaleza: 'C', Movimientos: 'NO', CuentaPadre: null,
-  Descripcion: 'Valor residual de los activos una vez deducidos todos sus pasivos (Capital social, Reservas, Resultados)'},
-
-  { Nombre: 'Ingresos', Codigo: '4', Tipo: 'INGRESO', Naturaleza: 'C', Movimientos: 'NO', CuentaPadre: null,
-  Descripcion: 'Representa incrementos en el patrimonio por ventas u otros servicios'},
-
-  { Nombre: 'Ingresos Operativos', Codigo: '41', Tipo: 'INGRESO', Naturaleza: 'C', Movimientos: 'NO', CuentaPadre: 4,
-  Descripcion: 'Ingresos provenientes de la actividad principal del negocio (la venta de mercadería)'},
-
-  { Nombre: 'Ventas Gravadas', Codigo: '4101', Tipo: 'INGRESO', Naturaleza: 'C', Movimientos: 'SI', CuentaPadre: 41,
-  Descripcion: 'Registra el valor, sin IVA, de todas las ventas de bienes sujetas al impuesto'},
-
-  { Nombre: 'Costos', Codigo: '5', Tipo: 'COSTO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: null,
-  Descripcion: 'Representa el valor de los bienes o servicios que se han vendido'},
-
-  { Nombre: 'Costo de Venta', Codigo: '51', Tipo: 'COSTO', Naturaleza: 'D', Movimientos: 'NO', CuentaPadre: 5,
-  Descripcion: 'Agrupa los costos directamente relacionados con la generación de los ingresos (el costo de la mercadería vendida)'},
-
-  { Nombre: 'Costo de Mercaderia', Codigo: '5101', Tipo: 'COSTO', Naturaleza: 'D', Movimientos: 'SI', CuentaPadre: 51,
-  Descripcion: 'Se carga cada vez que se realiza una venta y se abona el Inventario de Mercadería'},
-
-])
-
-const pagination = ref({
-  page: 1,
-  rowsPerPage: rows.value.length
+watch(CuentaPadre, (newVal) => {
+  if (newVal && newVal.codigo) {
+    codigoPrefijo.value = newVal.codigo
+    Codigo.value = newVal.codigo
+  } else {
+    codigoPrefijo.value = ''
+    Codigo.value = ''
+  }
 })
+
+watch(Codigo, (newValue, oldValue) => {
+  const prefijo = codigoPrefijo.value
+  const val = newValue || ''
+
+  if (prefijo === '') {
+    if (!/^\d*$/.test(val)) {
+      Codigo.value = oldValue
+      return
+    }
+
+    if (val.length > 2) {
+      Codigo.value = oldValue
+      return
+    }
+
+    const codeExists = Data.value.some(
+      (cuenta) => cuenta.codigo === val && cuenta.codigo !== '',
+    )
+
+    if (codeExists) {
+      console.warn(`El código "${val}" ya existe.`)
+      Codigo.value = ''
+      return
+    }
+  }
+  else {
+    if (!val.startsWith(prefijo)) {
+      Codigo.value = prefijo
+      return
+    }
+
+    const suffijo = val.substring(prefijo.length)
+
+
+    if (!/^\d*$/.test(suffijo)) {
+      Codigo.value = oldValue
+      return
+    }
+
+    if (suffijo.length > 2) {
+      Codigo.value = oldValue
+      return
+    }
+
+    if (suffijo.length > 0) {
+      const fullCode = prefijo + suffijo
+      const codeExists = Data.value.some((cuenta) => cuenta.codigo === fullCode)
+      if (codeExists) {
+        console.warn(`El código "${fullCode}" ya existe.`)
+        Codigo.value = oldValue
+        return
+      }
+    }
+  }
+})
+
+
+
+
 
 const enviarDatos = async () => {
   try {
-    const cuentas = rows.value.map(r => ({
-      nombre: r.Nombre,
-      codigo: r.Codigo,
-      tipo_cuenta: r.Tipo,
-      naturaleza: r.Naturaleza,
-      descripcion: r.Descripcion,
-      permite_movimientos: r.Movimientos.toUpperCase() === 'SI',
-      cuenta_padre_codigo: r.CuentaPadre,
-    }));
+    const cuentas =[{
+      nombre: Nombre.value,
+      codigo: Codigo.value,
+      tipo_cuenta: Tipo.value,
+      naturaleza: Naturaleza.value === 'DEUDORA' ? 'D' : 'C',
+      descripcion: Descripcion.value,
+      permite_movimientos: Movimientos.value === 'SI',
+      cuenta_padre_codigo: CuentaPadre.value.codigo },
+    ]
+
 
     const response = await axios.post(
       'http://localhost:8000/api/contabilidad/cuentas/crear/',
-      cuentas
+      cuentas,
     )
 
     console.log('¡Cuentas agregadas con éxito!', response.data)
@@ -128,6 +176,28 @@ const enviarDatos = async () => {
   }
 }
 
+const obtenerCuentasPadre = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/contabilidad/obtener/cuentas_padre/')
+    const mappedData = response.data.map(item => {
+      const c = item.cuenta ?? item
+      return {
+        id: c.id,
+        nombre: c.nombre,
+        codigo: c.codigo
+      }
+    })
+    Data.value = [sinCuentaPadre, ...mappedData]
+  } catch (error) {
+    console.error('Error obteniendo cuentas padre:', error)
+    Data.value = [sinCuentaPadre]
+  }
+}
+
+
+onMounted(() => {
+  obtenerCuentasPadre()
+})
 </script>
 
 <style lang="sass">
@@ -181,4 +251,3 @@ const enviarDatos = async () => {
   overflow-wrap: anywhere
   word-break: break-word
 </style>
-
