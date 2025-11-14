@@ -1,91 +1,95 @@
 <template>
   <q-page padding>
 
-    <div class="q-pa-md">
-      <h1>Aún falta</h1>
+    <div class="q-pa-md row q-gutter-md border-rounded shadow-2">
+      <div class="col-12 col-md-5">
+        <q-input type="text" outlined class="full-width q-mb-md" label="SKU" v-model="sku"/>
+        <q-input type="text" label="Nombre" outlined class="full-width q-mb-md" v-model="nombre"/>
+        <q-input type="number" label="Precio Venta" outlined class="full-width q-mb-md" v-model="precioVenta" prefix="$"/>
+        <q-input type="number" label="Precio Costo" outlined class="full-width q-mb-md" v-model="precioCosto" prefix="$"/>
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Inventario" :options="cuentas_inventario" option-label="nombre" v-model="cuentaInventario"/>
+      </div>
+      <q-space />
+      <div class="col-12 col-md-6">
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Impuesto" :options="cuentas_impuestos" option-label="nombre" v-model="cuentaImpuesto"/>
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Ingreso" :options="cuentas_ingreso" option-label="nombre" v-model="cuentaIngreso"/>
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Costo" :options="cuentas_costo" option-label="nombre" v-model="cuentaCosto"/>
+        <q-input type="textarea" label="Descripcion" outlined class="full-width q-mb-md" v-model="descripcion"/>
+      </div>
+
     </div>
     <q-btn
+      class="q-mt-md"
       label="Enviar datos"
       @click="enviarDatos"
       color="primary"
     />
-    <div class="q-pa-md">
-      <q-table
-        class="my-sticky-header-column-table"
-        flat bordered
-        title="Treats"
-        dense
-        :rows="rows"
-        :columns="columns"
-        row-key="codigo"
-        hide-bottom
-        v-model:pagination="pagination"
-      >
-        <template v-slot:body-cell-Descripcion="props">
-          <q-td :props="props">
-            <div class="desc-cell">{{ props.row.Descripcion }}</div>
-          </q-td>
-        </template>
-      </q-table>
-    </div>
 
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
-const columns = [
-  { name: 'Nombre', required: true, label: 'NOMBRE', align: 'left', field: 'Nombre', sortable: true },
-  { name: 'SKU', align: 'center', label: 'SKU', field: 'SKU', sortable: true },
-  { name: 'PrecioVenta', label: 'PRECIO VENTA', field: 'PrecioVenta', sortable: true },
-  { name: 'PrecioCosto', label: 'PRECIO COSTO', field: 'PrecioCosto', sortable: true},
-  { name: 'CuentaInventario', label: 'CUENTA INVENTARIO', field: 'CuentaInventario', sortable: true },
-  { name: 'CuentaImpuesto', label: 'CUENTA IMPUESTO', field: 'CuentaImpuesto', sortable: true },
-  { name: 'CuentaIngreso', label: 'CUENTA INGRESO', field: 'CuentaIngreso', sortable: true },
-  { name: 'CuentaCosto', label: 'CUENTA COSTO', field: 'CuentaCosto', sortable: true },
-  { name: 'Descripcion', label: 'DESCRIPCIÓN', field: 'Descripcion', align: 'left', sortable: true}
-]
 
-const rows = ref([
-  { Nombre: 'Laptop Dell XPS 15', SKU: 'LAP-DEL-XPS15', PrecioVenta: 1500.00, PrecioCosto: 1000, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-    Descripcion: 'Laptop Dell XPS 15 con procesador Intel Core i7-1165G7, 16GB de RAM, 512GB de SSD y 15.6" de pantalla. Con sistema operativo Windows 11' },
+const cuentas = ref([])
 
-  { Nombre: 'Smartphone Samsung Galaxy S21', SKU: 'SMA-GAL-S21', PrecioVenta: 799.99, PrecioCosto: 500, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-    Descripcion: 'Smartphone Samsung Galaxy S21 con pantalla de 6.2",'},
+const sku = ref('')
+const nombre = ref('')
+const precioVenta = ref(0)
+const precioCosto = ref(0)
+const cuentaInventario = ref(null)
+const cuentaImpuesto = ref(null)
+const cuentaIngreso = ref(null)
+const cuentaCosto = ref(null)
+const descripcion = ref('')
 
-  { Nombre: 'Cargador de 10000 mAh', SKU: 'CAR-10000', PrecioVenta: 100.00, PrecioCosto:50, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-  Descripcion: 'Cargador de 10000 mAh para smartphone Samsung Galaxy S21' },
 
-  {Nombre: 'Billetera de cuero', SKU: 'BIL-CUER', PrecioVenta: 100.00, PrecioCosto:50, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-  Descripcion: 'Billetera de cuero de 100 euros' },
+const cuentas_impuestos = ref([])
+const cuentas_inventario = ref([])
+const cuentas_ingreso = ref([])
+const cuentas_costo = ref([])
 
-  {Nombre: 'Camiseta de manga corta', SKU: 'CAM-COR', PrecioVenta: 15.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-  Descripcion: 'Camiseta de manga corta de 100 euros' },
 
-  {Nombre: 'Camiseta de manga larga', SKU: 'CAM-LAR', PrecioVenta: 20.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-  Descripcion: 'Camiseta de manga larga de 100 euros' },
 
-])
+const obtenerCuentas = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/contabilidad/obtener/cuentas_padre/')
+    cuentas.value = response.data.map(item => {
+      const c = item.cuenta ?? item
+      return {
+        id: c.id,
+        nombre: c.nombre,
+        codigo: c.codigo,
+        tipo: c.tipo,
+        movimientos: c.movimientos
+      }
+    })
 
-const pagination = ref({
-  page: 1,
-  rowsPerPage: rows.value.length
-})
+    cuentas_impuestos.value = cuentas.value.filter(c => String(c.codigo).startsWith('2101') && c.movimientos === true)
+    cuentas_inventario.value = cuentas.value.filter(c => String(c.codigo).startsWith('1102') && c.movimientos === true)
+    cuentas_ingreso.value = cuentas.value.filter(c => c.tipo ==='INGRESO' && c.movimientos === true)
+    cuentas_costo.value = cuentas.value.filter(c => c.tipo ==='COSTO' && c.movimientos === true)
+  } catch (error) {
+    console.error('Error obteniendo cuentas padre:', error)
+  }
+}
+
 
 const enviarDatos = async () => {
   try {
-    const productos = rows.value.map(r => ({
-      nombre: r.Nombre,
-      sku: r.SKU,
-      precio_venta: r.PrecioVenta,
-      precio_costo: r.PrecioCosto,
-      cuenta_inventario: r.CuentaInventario,
-      cuenta_impuesto: r.CuentaImpuesto,
-      cuenta_ingreso: r.CuentaIngreso,
-      cuenta_costo: r.CuentaCosto,
-      descripcion: r.Descripcion,
-    }));
+    const productos = [{
+      sku: sku.value,
+      nombre: nombre.value,
+      precio_venta: precioVenta.value,
+      precio_costo: precioCosto.value,
+      cuenta_inventario: cuentaInventario.value ? cuentaInventario.value.id : null,
+      cuenta_impuesto: cuentaImpuesto.value ? cuentaImpuesto.value.id : null,
+      cuenta_ingreso: cuentaIngreso.value ? cuentaIngreso.value.id : null,
+      cuenta_costo: cuentaCosto.value ? cuentaCosto.value.id : null,
+      descripcion: descripcion.value
+    }
+    ]
 
     const response = await axios.post(
       'http://localhost:8000/api/contabilidad/productos/agregar/',
@@ -99,6 +103,8 @@ const enviarDatos = async () => {
     alert('Error. Revisa la consola para ver los detalles.')
   }
 }
+
+onMounted(() => obtenerCuentas())
 
 </script>
 

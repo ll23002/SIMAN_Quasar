@@ -3,7 +3,7 @@
     <q-layout view="lHh Lpr lff" class="shadow-2 rounded-borders">
       <q-header elevated class="primary text-white">
         <q-toolbar>
-          <q-toolbar-title>Header</q-toolbar-title>
+          <q-toolbar-title>SIMAN</q-toolbar-title>
           <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
         </q-toolbar>
       </q-header>
