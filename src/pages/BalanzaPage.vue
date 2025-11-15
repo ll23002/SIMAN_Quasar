@@ -36,10 +36,6 @@
           </q-tr>
         </template>
       </q-table>
-
-      <div v-if="validationError" class="q-mt-md text-red text-bold">
-        {{ validationError }}
-      </div>
     </div>
   </q-page>
 </template>
@@ -126,24 +122,6 @@ const totals = computed(() => {
   }
 
   return result
-})
-
-const validationError = computed(() => {
-  const t = totals.value
-
-  const epsilon = 0.001
-
-  if (t.totalMovDebe === 0) return ''
-
-  if (Math.abs(t.totalMovDebe - t.totalMovHaber) > epsilon) {
-    return `Error de cuadre: Los movimientos (Debe y Haber) no son iguales.`
-  }
-
-  if (Math.abs(t.totalSaldoDebe - t.totalSaldoHaber) > epsilon) {
-    return `Error de cuadre: Los saldos (Debe y Haber) no son iguales.`
-  }
-
-  return null // Todo está cuadrado
 })
 
 const Balanza = async () => {
