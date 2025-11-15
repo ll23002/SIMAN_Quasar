@@ -1,39 +1,35 @@
 <template>
   <q-page padding>
 
-    <div class="q-pa-md">
-      <h1>Aún falta</h1>
+    <div class="q-pa-md row q-gutter-md border-rounded shadow-2">
+      <div class="col-12 col-md-5">
+        <q-input type="text" outlined class="full-width q-mb-md" label="SKU" v-model="sku"/>
+        <q-input type="text" label="Nombre" outlined class="full-width q-mb-md" v-model="nombre"/>
+        <q-input type="number" label="Precio Venta" outlined class="full-width q-mb-md" v-model="precioVenta" prefix="$"/>
+        <q-input type="number" label="Precio Costo" outlined class="full-width q-mb-md" v-model="precioCosto" prefix="$"/>
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Inventario" :options="cuentas_inventario" option-label="nombre" v-model="cuentaInventario"/>
+      </div>
+      <q-space />
+      <div class="col-12 col-md-6">
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Impuesto" :options="cuentas_impuestos" option-label="nombre" v-model="cuentaImpuesto"/>
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Ingreso" :options="cuentas_ingreso" option-label="nombre" v-model="cuentaIngreso"/>
+        <q-select outlined class="full-width q-mb-md" label="Cuenta Costo" :options="cuentas_costo" option-label="nombre" v-model="cuentaCosto"/>
+        <q-input type="textarea" label="Descripcion" outlined class="full-width q-mb-md" v-model="descripcion"/>
+      </div>
+
     </div>
     <q-btn
+      class="q-mt-md"
       label="Enviar datos"
       @click="enviarDatos"
       color="primary"
     />
-    <div class="q-pa-md">
-      <q-table
-        class="my-sticky-header-column-table"
-        flat bordered
-        title="Treats"
-        dense
-        :rows="rows"
-        :columns="columns"
-        row-key="codigo"
-        hide-bottom
-        v-model:pagination="pagination"
-      >
-        <template v-slot:body-cell-Descripcion="props">
-          <q-td :props="props">
-            <div class="desc-cell">{{ props.row.Descripcion }}</div>
-          </q-td>
-        </template>
-      </q-table>
-    </div>
 
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 const columns = [
   { name: 'Nombre', required: true, label: 'NOMBRE', align: 'left', field: 'Nombre', sortable: true },
@@ -66,9 +62,6 @@ const rows = ref([
   {Nombre: 'Camiseta de manga larga', SKU: 'CAM-LAR', PrecioVenta: 20.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
   Descripcion: 'Camiseta de manga larga de 100 euros' },
 
-  {Nombre: 'Almohada Tamaño Real de Gardevoir', SKU: 'GAR-ATR',PrecioVenta: 200.00, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
-  Descripcion: 'Una almohada para que te acompañe siempre'}
-
 ])
 
 const pagination = ref({
@@ -78,17 +71,18 @@ const pagination = ref({
 
 const enviarDatos = async () => {
   try {
-    const productos = rows.value.map(r => ({
-      nombre: r.Nombre,
-      sku: r.SKU,
-      precio_venta: r.PrecioVenta,
-      precio_costo: r.PrecioCosto,
-      cuenta_inventario: r.CuentaInventario,
-      cuenta_impuesto: r.CuentaImpuesto,
-      cuenta_ingreso: r.CuentaIngreso,
-      cuenta_costo: r.CuentaCosto,
-      descripcion: r.Descripcion,
-    }));
+    const productos = [{
+      sku: sku.value,
+      nombre: nombre.value,
+      precio_venta: precioVenta.value,
+      precio_costo: precioCosto.value,
+      cuenta_inventario: cuentaInventario.value ? cuentaInventario.value.id : null,
+      cuenta_impuesto: cuentaImpuesto.value ? cuentaImpuesto.value.id : null,
+      cuenta_ingreso: cuentaIngreso.value ? cuentaIngreso.value.id : null,
+      cuenta_costo: cuentaCosto.value ? cuentaCosto.value.id : null,
+      descripcion: descripcion.value
+    }
+    ]
 
     const response = await axios.post(
       'http://localhost:8000/api/contabilidad/productos/agregar/',
@@ -102,6 +96,8 @@ const enviarDatos = async () => {
     alert('Error. Revisa la consola para ver los detalles.')
   }
 }
+
+onMounted(() => obtenerCuentas())
 
 </script>
 
