@@ -31,50 +31,43 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+const columns = [
+  { name: 'Nombre', required: true, label: 'NOMBRE', align: 'left', field: 'Nombre', sortable: true },
+  { name: 'SKU', align: 'center', label: 'SKU', field: 'SKU', sortable: true },
+  { name: 'PrecioVenta', label: 'PRECIO VENTA', field: 'PrecioVenta', sortable: true },
+  { name: 'PrecioCosto', label: 'PRECIO COSTO', field: 'PrecioCosto', sortable: true},
+  { name: 'CuentaInventario', label: 'CUENTA INVENTARIO', field: 'CuentaInventario', sortable: true },
+  { name: 'CuentaImpuesto', label: 'CUENTA IMPUESTO', field: 'CuentaImpuesto', sortable: true },
+  { name: 'CuentaIngreso', label: 'CUENTA INGRESO', field: 'CuentaIngreso', sortable: true },
+  { name: 'CuentaCosto', label: 'CUENTA COSTO', field: 'CuentaCosto', sortable: true },
+  { name: 'Descripcion', label: 'DESCRIPCIÓN', field: 'Descripcion', align: 'left', sortable: true}
+]
 
-const cuentas = ref([])
+const rows = ref([
+  { Nombre: 'Laptop Dell XPS 15', SKU: 'LAP-DEL-XPS15', PrecioVenta: 1500.00, PrecioCosto: 1000, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+    Descripcion: 'Laptop Dell XPS 15 con procesador Intel Core i7-1165G7, 16GB de RAM, 512GB de SSD y 15.6" de pantalla. Con sistema operativo Windows 11' },
 
-const sku = ref('')
-const nombre = ref('')
-const precioVenta = ref(0)
-const precioCosto = ref(0)
-const cuentaInventario = ref(null)
-const cuentaImpuesto = ref(null)
-const cuentaIngreso = ref(null)
-const cuentaCosto = ref(null)
-const descripcion = ref('')
+  { Nombre: 'Smartphone Samsung Galaxy S21', SKU: 'SMA-GAL-S21', PrecioVenta: 799.99, PrecioCosto: 500, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+    Descripcion: 'Smartphone Samsung Galaxy S21 con pantalla de 6.2",'},
 
+  { Nombre: 'Cargador de 10000 mAh', SKU: 'CAR-10000', PrecioVenta: 100.00, PrecioCosto:50, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  Descripcion: 'Cargador de 10000 mAh para smartphone Samsung Galaxy S21' },
 
-const cuentas_impuestos = ref([])
-const cuentas_inventario = ref([])
-const cuentas_ingreso = ref([])
-const cuentas_costo = ref([])
+  {Nombre: 'Billetera de cuero', SKU: 'BIL-CUER', PrecioVenta: 100.00, PrecioCosto:50, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  Descripcion: 'Billetera de cuero de 100 euros' },
 
+  {Nombre: 'Camiseta de manga corta', SKU: 'CAM-COR', PrecioVenta: 15.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  Descripcion: 'Camiseta de manga corta de 100 euros' },
 
+  {Nombre: 'Camiseta de manga larga', SKU: 'CAM-LAR', PrecioVenta: 20.00, PrecioCosto:10, CuentaInventario: 6, CuentaImpuesto: 11, CuentaIngreso: 15, CuentaCosto: 18,
+  Descripcion: 'Camiseta de manga larga de 100 euros' },
 
-const obtenerCuentas = async () => {
-  try {
-    const response = await axios.get('http://localhost:8000/api/contabilidad/obtener/cuentas_padre/')
-    cuentas.value = response.data.map(item => {
-      const c = item.cuenta ?? item
-      return {
-        id: c.id,
-        nombre: c.nombre,
-        codigo: c.codigo,
-        tipo: c.tipo,
-        movimientos: c.movimientos
-      }
-    })
+])
 
-    cuentas_impuestos.value = cuentas.value.filter(c => String(c.codigo).startsWith('2101') && c.movimientos === true)
-    cuentas_inventario.value = cuentas.value.filter(c => String(c.codigo).startsWith('1102') && c.movimientos === true)
-    cuentas_ingreso.value = cuentas.value.filter(c => c.tipo ==='INGRESO' && c.movimientos === true)
-    cuentas_costo.value = cuentas.value.filter(c => c.tipo ==='COSTO' && c.movimientos === true)
-  } catch (error) {
-    console.error('Error obteniendo cuentas padre:', error)
-  }
-}
-
+const pagination = ref({
+  page: 1,
+  rowsPerPage: rows.value.length
+})
 
 const enviarDatos = async () => {
   try {
