@@ -83,7 +83,7 @@
               </q-item-section>
 
               <q-item-section>
-                Balance de Comprobación
+                Balanza de Comprobación
               </q-item-section>
             </q-item>
           </q-list>
