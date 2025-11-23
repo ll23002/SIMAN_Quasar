@@ -255,24 +255,33 @@ async function obtener_pasivo_circulante() {
   }
 }
 
+const cargarGrafico = async () => {
+  try {
+    const { data } = await axios.get('http://localhost:8000/api/contabilidad/datos_grafica/')
+
+    chartOptions.value = {
+      ...chartOptions.value,
+      xaxis: {
+        ...chartOptions.value.xaxis,
+        categories: data.categories
+      }
+    }
+    series.value = data.series
+  } catch (error) {
+    console.error("Error cargando gráfico, seguramente no tienes datos", error)
+  }
+}
+
 onMounted(() => {
   obtenerFacturas()
   obtener_por_cobrar()
   obtener_ventas_hoy()
   obtener_pasivo_circulante()
+  cargarGrafico()
 })
 
 //Debo cambiar esto
-const series = ref([
-  {
-    name: 'Ingresos',
-    data: [31, 40, 28, 51, 42, 109, 100],
-  },
-  {
-    name: 'Gastos',
-    data: [11, 32, 45, 32, 34, 52, 41],
-  },
-])
+const series = ref([])
 
 //Debo cambiar esto
 const chartOptions = ref({
@@ -294,7 +303,7 @@ const chartOptions = ref({
   },
 
   xaxis: {
-    categories: ['Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+    categories: [],
     labels: {
       style: { colors: '#ccc' },
     },
