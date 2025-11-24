@@ -2,8 +2,6 @@
   <q-page class="q-pa-md bg-dark-page">
     <div class="row items-center q-mb-lg">
       <div class="text-h5 text-white text-weight-bold">Resumen Financiero</div>
-      <q-space />
-      <q-btn flat icon="refresh" color="grey" rounded />
     </div>
 
     <div class="row q-col-gutter-md q-mb-lg">
