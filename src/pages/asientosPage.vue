@@ -63,7 +63,7 @@ const loadingCierre = ref(false)
 const generarAjuste = async () => {
   loadingAjuste.value = true
   try {
-    const res = await axios.post('http://localhost:8000/api/contabilidad/asientos/generar-ajuste-iva/')
+    const res = await axios.post('http://178.128.79.42:8000/api/contabilidad/asientos/generar-ajuste-iva/')
     if (res.data.mensaje) {
       Notify.create({ type: 'info', message: res.data.mensaje })
     }
