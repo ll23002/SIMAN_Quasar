@@ -1,142 +1,310 @@
 <template>
   <q-page padding>
-    <div class="q-pa-md">
+    <h1 class="text-h5 q-mb-md">Balance General</h1>
+    <q-btn 
+      label="Exportar PDF" 
+      color="primary" 
+      icon="picture_as_pdf" 
+      class="q-mb-md"
+      @click="exportPDF" 
+    />
 
-      <h4 class="text-h5 q-mb-md">Balance General</h4>
+    <p class="text-grey-7">Basado en datos reales del libro mayor</p>
 
-      <!-- ===== ACTIVOS ===== -->
-      <q-expansion-item 
-        icon="inventory_2"
-        label="Activos"
-        expand-separator
-        default-opened
-      >
-        <q-table
-          :rows="balance.activos"
-          :columns="columns"
-          row-key="codigo"
-          dense flat bordered
-          :rows-per-page-options="[0]"
-          hide-bottom
-        />
+    <!-- ============================
+         ACTIVOS
+    ============================ -->
+    <q-expansion-item 
+      label="Activos" 
+      icon="account_balance" 
+      expand-separator
+      default-opened
+    >
 
-        <div class="text-right text-bold q-mt-sm">
-          Total Activos: {{ formatCurrency(balance.totales.total_activos) }}
-        </div>
+      <!-- Activos Corrientes -->
+      <q-expansion-item label="Activos Corrientes" icon="folder" dense>
+        <q-markup-table flat bordered>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cuenta</th>
+              <th class="text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="c in activosCorriente" :key="c.codigo">
+              <td>{{ c.codigo }}</td>
+              <td>{{ c.nombre }}</td>
+              <td class="text-right">{{ formatCurrency(getSaldo(c)) }}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="text-right"><b>Total Activos Corrientes</b></td>
+              <td class="text-right"><b>{{ formatCurrency(total(activosCorriente)) }}</b></td>
+            </tr>
+          </tbody>
+        </q-markup-table>
       </q-expansion-item>
 
-      <!-- ===== PASIVOS ===== -->
-      <q-expansion-item 
-        icon="account_balance"
-        label="Pasivos"
-        expand-separator
-      >
-        <q-table
-          :rows="balance.pasivos"
-          :columns="columns"
-          row-key="codigo"
-          dense flat bordered
-          :rows-per-page-options="[0]"
-          hide-bottom
-        />
-
-        <div class="text-right text-bold q-mt-sm">
-          Total Pasivos: {{ formatCurrency(balance.totales.total_pasivos) }}
-        </div>
+      <!-- Activos No Corrientes -->
+      <q-expansion-item label="Activos No Corrientes" icon="folder_open" dense>
+        <q-markup-table flat bordered>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cuenta</th>
+              <th class="text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="c in activosNoCorriente" :key="c.codigo">
+              <td>{{ c.codigo }}</td>
+              <td>{{ c.nombre }}</td>
+              <td class="text-right">{{ formatCurrency(getSaldo(c)) }}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="text-right"><b>Total Activos No Corrientes</b></td>
+              <td class="text-right"><b>{{ formatCurrency(total(activosNoCorriente)) }}</b></td>
+            </tr>
+          </tbody>
+        </q-markup-table>
       </q-expansion-item>
 
-      <!-- ===== PATRIMONIO ===== -->
-      <q-expansion-item 
-        icon="account_balance_wallet"
-        label="Patrimonio"
-        expand-separator
-      >
-        <q-table
-          :rows="balance.patrimonio"
-          :columns="columns"
-          row-key="codigo"
-          dense flat bordered
-          :rows-per-page-options="[0]"
-          hide-bottom
-        />
-
-        <div class="text-right text-bold q-mt-sm">
-          Total Patrimonio: {{ formatCurrency(balance.totales.total_patrimonio) }}
-        </div>
-      </q-expansion-item>
-
-      <!-- ===== TOTALES GENERALES ===== -->
-      <div class="q-mt-xl text-right text-h6">
-        <div><b>Total Activos:</b> {{ formatCurrency(balance.totales.total_activos) }}</div>
-        <div><b>Total Pasivos + Patrimonio:</b> 
-          {{ formatCurrency(balance.totales.total_pasivos + balance.totales.total_patrimonio) }}
-        </div>
+      <div class="q-pa-sm text-right text-primary text-bold">
+        TOTAL ACTIVOS: {{ formatCurrency(totalActivos) }}
       </div>
 
+    </q-expansion-item>
+
+    <!-- ============================
+         PASIVOS
+    ============================ -->
+    <q-expansion-item label="Pasivos" icon="money_off" expand-separator class="q-mt-md">
+
+      <q-expansion-item label="Pasivos Corrientes" icon="folder" dense>
+        <q-markup-table flat bordered>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cuenta</th>
+              <th class="text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="c in pasivosCorriente" :key="c.codigo">
+              <td>{{ c.codigo }}</td>
+              <td>{{ c.nombre }}</td>
+              <td class="text-right">{{ formatCurrency(getSaldo(c)) }}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="text-right"><b>Total Pasivos Corrientes</b></td>
+              <td class="text-right"><b>{{ formatCurrency(total(pasivosCorriente)) }}</b></td>
+            </tr>
+          </tbody>
+        </q-markup-table>
+      </q-expansion-item>
+
+      <q-expansion-item label="Pasivos No Corrientes" icon="folder_open" dense>
+        <q-markup-table flat bordered>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cuenta</th>
+              <th class="text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="c in pasivosNoCorriente" :key="c.codigo">
+              <td>{{ c.codigo }}</td>
+              <td>{{ c.nombre }}</td>
+              <td class="text-right">{{ formatCurrency(getSaldo(c)) }}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="text-right"><b>Total Pasivos No Corrientes</b></td>
+              <td class="text-right"><b>{{ formatCurrency(total(pasivosNoCorriente)) }}</b></td>
+            </tr>
+          </tbody>
+        </q-markup-table>
+      </q-expansion-item>
+
+      <div class="q-pa-sm text-right text-primary text-bold">
+        TOTAL PASIVOS: {{ formatCurrency(totalPasivos) }}
+      </div>
+    </q-expansion-item>
+
+
+    <!-- ============================
+         PATRIMONIO
+    ============================ -->
+    <q-expansion-item label="Patrimonio" icon="account_circle" expand-separator class="q-mt-md">
+      <q-markup-table flat bordered>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cuenta</th>
+            <th class="text-right">Saldo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="c in patrimonio" :key="c.codigo">
+            <td>{{ c.codigo }}</td>
+            <td>{{ c.nombre }}</td>
+            <td class="text-right">{{ formatCurrency(getSaldo(c)) }}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="text-right"><b>Total Patrimonio</b></td>
+            <td class="text-right"><b>{{ formatCurrency(totalPatrimonio) }}</b></td>
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </q-expansion-item>
+
+
+    <!-- ============================
+         VALIDACIÓN DEL BALANCE
+    ============================ -->
+    <div class="q-pa-lg text-h6 text-center text-bold">
+      TOTAL ACTIVOS: {{ formatCurrency(totalActivos) }}<br>
+      TOTAL PASIVO + PATRIMONIO: {{ formatCurrency(totalPasivos + totalPatrimonio) }}
     </div>
   </q-page>
 </template>
 
 
+
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+// ========================================================
+// IMPORTS
+// ========================================================
+import { ref, onMounted, computed } from "vue"
+import axios from "axios"
+// ========================================================
+// EXPORTAR A PDF
+// ========================================================
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
 
-const balance = ref({
-  activos: [],
-  pasivos: [],
-  patrimonio: [],
-  totales: {
-    total_activos: 0,
-    total_pasivos: 0,
-    total_patrimonio: 0
-  }
-})
+function exportPDF() {
+  const doc = new jsPDF()
+  doc.setFontSize(16)
+  doc.text("Balance General", 14, 15)
 
-const formatCurrency = (value) => {
-  if (!value) return '$0.00'
-  return Number(value).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD'
+  const secciones = [
+    { titulo: "Activos Corrientes", data: activosCorriente.value },
+    { titulo: "Activos No Corrientes", data: activosNoCorriente.value },
+    { titulo: "Pasivos Corrientes", data: pasivosCorriente.value },
+    { titulo: "Pasivos No Corrientes", data: pasivosNoCorriente.value },
+    { titulo: "Patrimonio", data: patrimonio.value }
+  ]
+
+  let y = 25
+
+  secciones.forEach(sec => {
+    doc.setFontSize(13)
+    doc.text(sec.titulo, 14, y)
+    y += 3
+
+    autoTable(doc, {
+      startY: y,
+      head: [["Código", "Cuenta", "Saldo"]],
+      body: sec.data.map(c => [
+        c.codigo,
+        c.nombre,
+        formatCurrency(getSaldo(c))
+      ]),
+      theme: "grid",
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [33, 150, 243] }
+    })
+
+    y = doc.lastAutoTable.finalY + 10
   })
+
+  // Totales finales
+  doc.setFontSize(14)
+  doc.text(`Total Activos: ${formatCurrency(totalActivos.value)}`, 14, y)
+  y += 7
+  doc.text(
+    `Total Pasivos + Patrimonio: ${formatCurrency(totalPasivos.value + totalPatrimonio.value)}`,
+    14,
+    y
+  )
+
+  doc.save("Balance_General.pdf")
 }
 
-const columns = [
-  {
-    name: 'codigo',
-    label: 'Código',
-    field: 'codigo',
-    align: 'left',
-    sortable: true,
-    style: 'width: 90px'
-  },
-  {
-    name: 'nombre',
-    label: 'Cuenta',
-    field: 'nombre',
-    align: 'left',
-    sortable: true
-  },
-  {
-    name: 'saldo',
-    label: 'Saldo',
-    field: 'saldo',
-    align: 'right',
-    sortable: true,
-    format: (v) => formatCurrency(v)
-  }
-]
 
-const cargarBalance = async () => {
+// ========================================================
+// DATA
+// ========================================================
+const cuentas = ref([])
+
+
+// ========================================================
+// API CALL — MISMO ENDPOINT QUE LA BALANZA
+// ========================================================
+async function cargarCuentas() {
   try {
-    const response = await axios.get('http://localhost:8000/api/contabilidad/balance_general/')
-    balance.value = response.data
-  } catch (error) {
-    console.error("Error al obtener el balance general:", error)
+    const res = await axios.get("http://localhost:8000/api/contabilidad/libro_mayor/")
+    cuentas.value = res.data
+  } catch (e) {
+    console.error("Error cargando datos:", e)
   }
 }
 
-onMounted(() => {
-  cargarBalance()
-})
+onMounted(() => cargarCuentas())
+
+
+// ========================================================
+// UTILIDADES
+// ========================================================
+function formatCurrency(value) {
+  if (!value) return "$0.00"
+  const num = Number(value)
+  return num.toLocaleString("en-US", { style: "currency", currency: "USD" })
+}
+
+/*  
+   Usa naturaleza igual que en la balanza:
+   - D → saldo va al DEBE (positivo para activos/gastos)
+   - C → saldo va al HABER (positivo para pasivos/patrimonio)
+*/
+function getSaldo(cuenta) {
+  return Number(cuenta.saldo)
+}
+
+
+// ========================================================
+// CLASIFICACIÓN AUTOMÁTICA POR CÓDIGO
+// ========================================================
+const activosCorriente = computed(() =>
+  cuentas.value.filter(c => c.codigo >= 1100 && c.codigo < 1200)
+)
+
+const activosNoCorriente = computed(() =>
+  cuentas.value.filter(c => c.codigo >= 1200 && c.codigo < 2000)
+)
+
+const pasivosCorriente = computed(() =>
+  cuentas.value.filter(c => c.codigo >= 2100 && c.codigo < 2200)
+)
+
+const pasivosNoCorriente = computed(() =>
+  cuentas.value.filter(c => c.codigo >= 2200 && c.codigo < 3000)
+)
+
+const patrimonio = computed(() =>
+  cuentas.value.filter(c => c.codigo >= 3100 && c.codigo < 4000)
+)
+
+
+// ========================================================
+// TOTALIZADORES
+// ========================================================
+function total(lista) {
+  return lista.reduce((s, c) => s + getSaldo(c), 0)
+}
+
+const totalActivos = computed(() => total(activosCorriente.value) + total(activosNoCorriente.value))
+const totalPasivos = computed(() => total(pasivosCorriente.value) + total(pasivosNoCorriente.value))
+const totalPatrimonio = computed(() => total(patrimonio.value))
 </script>
