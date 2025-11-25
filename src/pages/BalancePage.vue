@@ -9,7 +9,7 @@
       @click="exportPDF" 
     />
 
-    <p class="text-grey-7">Basado en datos reales del libro mayor</p>
+    <p class="text-grey-7">Basado en datos reales del libro mayor (el que lea esto es gay)</p>
 
     <!-- ============================
          ACTIVOS
