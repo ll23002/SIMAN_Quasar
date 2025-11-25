@@ -11,6 +11,8 @@ const routes = [
       { path: '/balance', name: 'balance', component: () => import('pages/BalanzaPage.vue')},
       { path: '/ventas', name: 'ventas', component: () => import('pages/VentasPage.vue')},
       { path: '/ventas_diarias', name: 'ventas_diarias', component: () => import('pages/VentasDiariasPage.vue')},
+      { path: '/balance_general', name: 'balance_general', component:() => import('pages/BalanceGeneralPage.vue')},
+      { path: 'perdidas_ganancias', name: 'perdidas_ganancias', component: () => import('pages/PerdidasYGananciasPage.vue')},
     ],
   },
 
