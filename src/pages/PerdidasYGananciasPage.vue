@@ -24,7 +24,7 @@ const costos = ref([])
 const gastos = ref([])
 
 async function obtenerLibroMayor() {
-  const response = await axios.get('http://localhost:8000/api/contabilidad/libro_mayor/')
+  const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/libro_mayor/')
   mayor.value = response.data
   clasificarCuentas()
 }

@@ -302,7 +302,7 @@ async function filterFn (val, update) {
   }
 
   try {
-    const response = await axios.get('http://localhost:8000/api/contabilidad/productos/obtener/', {
+    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/productos/obtener/', {
       params: {
         search: val
       }
@@ -392,7 +392,7 @@ const enviarDatos = async () => {
     }
 
     const response = await axios.post(
-      'http://localhost:8000/api/contabilidad/ventas/registrar/', payload)
+      'http://178.128.79.42:8000/api/contabilidad/ventas/registrar/', payload)
 
     console.log('¡Venta registrada con éxito!', response.data)
 

@@ -54,7 +54,7 @@ const cuentas_costo = ref([])
 
 const obtenerCuentas = async () => {
   try {
-    const response = await axios.get('http://localhost:8000/api/contabilidad/obtener/cuentas_padre/')
+    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/obtener/cuentas_padre/')
     cuentas.value = response.data.map(item => {
       const c = item.cuenta ?? item
       return {
@@ -92,7 +92,7 @@ const enviarDatos = async () => {
     ]
 
     const response = await axios.post(
-      'http://localhost:8000/api/contabilidad/productos/agregar/',
+      'http://178.128.79.42:8000/api/contabilidad/productos/agregar/',
       productos
     )
 

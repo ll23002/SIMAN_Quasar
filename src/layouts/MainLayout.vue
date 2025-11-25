@@ -35,6 +35,16 @@
             <q-item-section>Dashboard</q-item-section>
           </q-item>
 
+          <q-item clickable v-ripple :to="{ name: 'productos' }">
+            <q-item-section avatar>
+              <q-icon name="add_shopping_cart" />
+            </q-item-section>
+  
+            <q-item-section>
+              Agregar Productos
+            </q-item-section>
+          </q-item>
+
           <q-item clickable v-ripple :to="{ name: 'ventas'}">
             <q-item-section avatar>
               <q-icon name="shopping_cart" />
@@ -96,7 +106,6 @@
             </q-item-section>
           </q-item>
 
-
           <q-item clickable v-ripple :to="{ name: 'perdidas_ganancias' }">
             <q-item-section avatar>
               <q-icon name="library_books" />
@@ -106,6 +115,7 @@
               Perdidas y Ganancias
             </q-item-section>
           </q-item>
+
 
         </q-list>
       </q-scroll-area>

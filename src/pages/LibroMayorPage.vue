@@ -26,7 +26,7 @@ const totales = computed(() => {
 async function obtenerDatosLibroMayor() {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:8000/api/contabilidad/libro_mayor/')
+    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/libro_mayor/')
     rows.value = response.data
   } catch (error) {
     console.error('Error obteniendo datos del libro mayor:', error)

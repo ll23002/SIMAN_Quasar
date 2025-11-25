@@ -244,7 +244,7 @@ const cuentas = ref([])
 // ========================================================
 async function cargarCuentas() {
   try {
-    const res = await axios.get("http://localhost:8000/api/contabilidad/libro_mayor/")
+    const res = await axios.get("http://178.128.79.42:8000/api/contabilidad/libro_mayor/")
     cuentas.value = res.data
   } catch (e) {
     console.error("Error cargando datos:", e)

@@ -119,7 +119,7 @@ const estadisticas = computed(() => {
 async function obtenerFacturas() {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:8000/api/contabilidad/facturas/obtener/')
+    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/facturas/obtener/')
     rows.value = response.data
   } catch (error) {
     console.error('Error obteniendo facturas:', error)
@@ -390,7 +390,7 @@ onMounted(() => {
                 flat
                 round
                 dense
-                :href="`http://localhost:8000/api/contabilidad/factura/${props.row.id}/pdf/`"
+                :href="`http://178.128.79.42:8000/api/contabilidad/factura/${props.row.id}/pdf/`"
                 target="_blank"
               >
                 <q-tooltip>Descargar PDF</q-tooltip>

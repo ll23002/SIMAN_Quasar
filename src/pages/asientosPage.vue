@@ -82,7 +82,7 @@ const generarCierre = async () => {
 
   loadingCierre.value = true
   try {
-    const res = await axios.post('http://localhost:8000/api/contabilidad/asientos/generar-cierre/')
+    const res = await axios.post('http://178.128.79.42:8000/api/contabilidad/asientos/generar-cierre/')
     Notify.create({ type: 'positive', message: res.data.mensaje })
     await obtenerAsientosContables()
     await obtenerPartidasCierreAjuste()
@@ -97,7 +97,7 @@ const generarCierre = async () => {
 async function obtenerAsientosContables () {
   try {
     const response = await axios.get(
-      'http://localhost:8000/api/contabilidad/asientos/obtener/'
+      'http://178.128.79.42:8000/api/contabilidad/asientos/obtener/'
     )
     rows.value = response.data
   } catch (error) {
@@ -112,7 +112,7 @@ async function generarBalanceInicial () {
     return
   }
   try {
-    await axios.post('http://localhost:8000/api/contabilidad/balance_inicial/')
+    await axios.post('http://178.128.79.42:8000/api/contabilidad/balance_inicial/')
     Notify.create('Balance inicial generado correctamente')
   } catch (error) {
     console.error('Error generando balance inicial:', error)
@@ -123,7 +123,7 @@ async function generarBalanceInicial () {
 async function obtenerPartidasCierreAjuste () {
   try {
     const response = await axios.get(
-      'http://localhost:8000/api/contabilidad/asientos/ajuste-cierre/'
+      'http://178.128.79.42:8000/api/contabilidad/asientos/ajuste-cierre/'
     )
     rowsCierreAjuste.value = response.data
   } catch (error) {
