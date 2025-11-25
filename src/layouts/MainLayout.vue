@@ -50,6 +50,14 @@
             <q-item-section>Facturación Digital</q-item-section>
           </q-item>
 
+          <q-item clickable v-ripple :to="{ name: 'ventas_diarias' }">
+            <q-item-section avatar>
+              <q-icon name="shopping_basket" />
+            </q-item-section>
+            <q-item-section>Ventas Diarias</q-item-section>
+          </q-item>
+
+
           <q-item clickable v-ripple :to="{ name: 'cuentas' }">
             <q-item-section avatar>
               <q-icon name="account_balance" />

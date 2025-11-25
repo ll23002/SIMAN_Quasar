@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import { Notify } from 'quasar'
 
 const columns = [
   {
@@ -50,15 +51,47 @@ const columns = [
   }
 ]
 
-// 📌 Libro diario completo (todas las partidas)
 const rows = ref([])
 
-// 📌 Solo partidas de ajuste y cierre
 const rowsCierreAjuste = ref([])
 
 const expandedRows = ref({})
 
-// 👉 Asientos normales (libro diario)
+const loadingAjuste = ref(false)
+const loadingCierre = ref(false)
+
+const generarAjuste = async () => {
+  loadingAjuste.value = true
+  try {
+    const res = await axios.post('http://localhost:8000/api/contabilidad/asientos/generar-ajuste-iva/')
+    if (res.data.mensaje) {
+      Notify.create({ type: 'info', message: res.data.mensaje })
+    }
+
+    await obtenerAsientosContables()
+  } catch (error) {
+    Notify.create({ type: 'negative', message: 'Error generando ajuste.', error })
+  } finally {
+    loadingAjuste.value = false
+  }
+}
+
+const generarCierre = async () => {
+  if (!confirm("¿Estás seguro? Esto dejará en cero todas las cuentas de ingresos y gastos.")) return;
+
+  loadingCierre.value = true
+  try {
+    const res = await axios.post('http://localhost:8000/api/contabilidad/asientos/generar-cierre/')
+    Notify.create({ type: 'positive', message: res.data.mensaje })
+    await obtenerAsientosContables()
+  } catch (error) {
+    Notify.create({ type: 'negative', message: 'Error en el cierre contable.', error })
+  } finally {
+    loadingCierre.value = false
+  }
+}
+
+
 async function obtenerAsientosContables () {
   try {
     const response = await axios.get(
@@ -71,11 +104,24 @@ async function obtenerAsientosContables () {
   }
 }
 
-// 👉 NUEVA función: partidas de ajuste y cierre
+async function generarBalanceInicial () {
+  if (!rows.value || rows.value.length === 0) {
+    Notify.create({ type: 'warning', message: 'Aún no han habido ventas' })
+    return
+  }
+  try {
+    await axios.post('http://localhost:8000/api/contabilidad/balance_inicial/')
+    Notify.create('Balance inicial generado correctamente')
+  } catch (error) {
+    console.error('Error generando balance inicial:', error)
+    Notify.create('Error al generar el balance inicial')
+  }
+}
+
 async function obtenerPartidasCierreAjuste () {
   try {
     const response = await axios.get(
-      'http://localhost:8000/api/contabilidad/asientos/cierre-ajuste/'
+      'http://localhost:8000/api/contabilidad/asientos/ajuste-cierre/'
     )
     rowsCierreAjuste.value = response.data
   } catch (error) {
@@ -101,10 +147,14 @@ onMounted(() => {
 <template>
   <q-page padding>
     <div class="q-pa-md">
-
-      <!-- ===================== -->
-      <!--  LIBRO DIARIO GENERAL -->
-      <!-- ===================== -->
+      <q-btn
+        color="secondary"
+        icon="auto_fix_high"
+        label="Generar Balance Inicial"
+        @click="generarBalanceInicial"
+      >
+        <q-tooltip>Calcula la partida de apertura automáticamente</q-tooltip>
+      </q-btn>
       <div class="q-pa-md">
         <h1>Libro Diario</h1>
       </div>
@@ -211,12 +261,28 @@ onMounted(() => {
         </template>
       </q-table>
 
-      <!-- ======================================= -->
-      <!--  PARTIDAS DE AJUSTE Y CIERRE (LIBRO)   -->
-      <!-- ======================================= -->
+      <!-- PARTIDAS DE AJUSTE Y CIERRE -->
+
       <div class="q-pa-md q-mt-xl">
         <h2>Partidas de Ajuste y Cierre</h2>
       </div>
+      <div class="row q-gutter-sm q-mb-md">
+        <q-btn
+          color="orange"
+          icon="build"
+          label="Generar Ajuste IVA (Mensual)"
+          @click="generarAjuste"
+          :loading="loadingAjuste"
+        />
+        <q-btn
+          color="negative"
+          icon="lock"
+          label="Realizar Cierre Contable (Anual)"
+          @click="generarCierre"
+          :loading="loadingCierre"
+        />
+      </div>
+
 
       <q-table
         flat
