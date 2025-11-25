@@ -1,6 +1,5 @@
 <template>
   <q-page class="q-pa-md bg-dark-page">
-    <!-- Header con título y botón de actualizar -->
     <div class="row items-center justify-between q-mb-lg">
       <div class="text-h5 text-white text-weight-bold">Balanza de Comprobación</div>
       <q-btn
@@ -16,7 +15,6 @@
       </q-btn>
     </div>
 
-    <!-- Tarjetas de resumen de totales -->
     <div class="row q-col-gutter-md q-mb-lg">
       <div class="col-12 col-md-3">
         <q-card class="bg-dark-card text-white no-shadow" bordered>
@@ -111,7 +109,6 @@
       </div>
     </div>
 
-    <!-- Tabla principal -->
     <div>
       <q-card class="bg-dark-card text-white no-shadow" bordered>
         <q-card-section class="row items-center q-pb-sm">
