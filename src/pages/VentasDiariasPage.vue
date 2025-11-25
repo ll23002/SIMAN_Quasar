@@ -1,6 +1,5 @@
 <template>
   <q-page padding class="ventas-diarias-page bg-dark-page">
-    <!-- Header con título y selector de fecha -->
     <div class="page-header q-mb-xl">
       <div class="row items-center justify-between">
         <div class="col-12 col-md-6 q-mb-md">
@@ -51,7 +50,6 @@
       </div>
     </div>
 
-    <!-- Tarjetas de métricas con animación -->
     <transition-group name="fade-slide" class="row q-col-gutter-lg q-mb-xl" tag="div">
       <div class="col-12 col-sm-6 col-md-4" key="card-1">
         <q-card class="metric-card metric-card-success bg-dark-card text-white no-shadow" bordered>
@@ -129,7 +127,6 @@
       </div>
     </transition-group>
 
-    <!-- Tabla de facturas mejorada -->
     <q-card class="table-card bg-dark-card text-white no-shadow" bordered>
       <q-card-section class="q-pb-none">
         <div class="row items-center justify-between">
@@ -349,7 +346,6 @@ onMounted(() => {
   }
 }
 
-/* Tarjetas de métricas */
 .metric-card {
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -387,7 +383,6 @@ onMounted(() => {
   }
 }
 
-/* Tabla mejorada */
 .table-card {
   border-radius: 16px;
   overflow: hidden;
@@ -418,7 +413,6 @@ onMounted(() => {
   }
 }
 
-/* Animaciones */
 .fade-slide-enter-active {
   transition: all 0.4s ease;
 }
@@ -428,7 +422,6 @@ onMounted(() => {
   transform: translateY(20px);
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .page-header {
     text-align: center;
