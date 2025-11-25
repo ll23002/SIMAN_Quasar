@@ -159,4 +159,3 @@ onMounted(() => obtenerCuentas())
   overflow-wrap: anywhere
   word-break: break-word
 </style>
-
