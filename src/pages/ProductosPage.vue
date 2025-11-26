@@ -16,7 +16,6 @@
       </div>
     </div>
 
-
     <!-- 🔹 FORMULARIO PRINCIPAL -->
     <div class="form-card q-pa-lg row q-gutter-md">
 
@@ -78,22 +77,30 @@
 
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
+import { useQuasar } from 'quasar'
 
-// --- 1. Referencias de Formulario ---
+const $q = useQuasar()
+
+// --- 1. Referencias del Formulario ---
 const sku = ref('')
 const nombre = ref('')
 const precioVenta = ref(0)
 const precioCosto = ref(0)
 const descripcion = ref('')
-// Nueva referencia para la selección simplificada
-const tipoProducto = ref('Gravado') // Valor por defecto
+const tipoProducto = ref('Gravado')
 
-// --- 2. Referencias de Cuentas y Clasificación ---
+// --- Validación reactiva ---
+const errorPrecio = ref(false)
+
+watch([precioVenta, precioCosto], () => {
+  errorPrecio.value = precioVenta.value < precioCosto.value
+})
+
+// --- 2. Cuentas ---
 const cuentas = ref([])
 
-// Nuevo objeto para almacenar las cuentas clasificadas
 const cuentas_clasificadas = ref({
   impuestos: [],
   inventario: [],
@@ -101,8 +108,6 @@ const cuentas_clasificadas = ref({
   costo: []
 })
 
-// Constantes para almacenar los IDs de las cuentas por defecto
-// Estos valores se llenarán en la función 'obtenerCuentas'
 const CUENTAS_GRAVADO_ID = {
   cuenta_inventario: null,
   cuenta_impuesto: null,
@@ -118,13 +123,11 @@ const CUENTAS_EXENTO_ID = {
 }
 
 
-// --- 3. Funciones de Lógica ---
-
+// --- 3. Obtener cuentas ---
 const obtenerCuentas = async () => {
   try {
     const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/obtener/cuentas_padre/')
     
-    // Mapear los datos de respuesta
     cuentas.value = response.data.map(item => {
       const c = item.cuenta ?? item
       return {
@@ -136,32 +139,28 @@ const obtenerCuentas = async () => {
       }
     })
 
-    // CLASIFICAR LAS CUENTAS POR TIPO
-    cuentas_clasificadas.value.impuestos = cuentas.value.filter(c => String(c.codigo).startsWith('2101') && c.movimientos === true)
-    cuentas_clasificadas.value.inventario = cuentas.value.filter(c => String(c.codigo).startsWith('1102') && c.movimientos === true)
-    cuentas_clasificadas.value.ingreso = cuentas.value.filter(c => c.tipo ==='INGRESO' && c.movimientos === true)
-    cuentas_clasificadas.value.costo = cuentas.value.filter(c => c.tipo ==='COSTO' && c.movimientos === true)
+    cuentas_clasificadas.value.impuestos = cuentas.value.filter(c => String(c.codigo).startsWith('2101') && c.movimientos)
+    cuentas_clasificadas.value.inventario = cuentas.value.filter(c => String(c.codigo).startsWith('1102') && c.movimientos)
+    cuentas_clasificadas.value.ingreso = cuentas.value.filter(c => c.tipo === 'INGRESO' && c.movimientos)
+    cuentas_clasificadas.value.costo = cuentas.value.filter(c => c.tipo === 'COSTO' && c.movimientos)
 
-    // ASIGNAR LAS CUENTAS POR DEFECTO A LAS CONSTANTES
-    
-    // --- 1. CUENTAS GRAVADO (IVA) ---
+    // CUENTAS GRAVADO
     CUENTAS_GRAVADO_ID.cuenta_inventario = cuentas_clasificadas.value.inventario[0]?.id || null
-    // Intenta encontrar una cuenta de IVA estándar (ej. 13% o 16%), o usa la primera
-    CUENTAS_GRAVADO_ID.cuenta_impuesto = cuentas_clasificadas.value.impuestos.find(c => c.nombre.toLowerCase().includes('iva'))?.id || cuentas_clasificadas.value.impuestos[0]?.id || null
+    CUENTAS_GRAVADO_ID.cuenta_impuesto =
+      cuentas_clasificadas.value.impuestos.find(c => c.nombre.toLowerCase().includes('iva'))?.id ||
+      cuentas_clasificadas.value.impuestos[0]?.id ||
+      null
     CUENTAS_GRAVADO_ID.cuenta_ingreso = cuentas_clasificadas.value.ingreso[0]?.id || null
     CUENTAS_GRAVADO_ID.cuenta_costo = cuentas_clasificadas.value.costo[0]?.id || null
 
-    // --- 2. CUENTAS EXENTO (SIN IMPUESTOS) ---
-    CUENTAS_EXENTO_ID.cuenta_inventario = cuentas_clasificadas.value.inventario[0]?.id || null
-    // Intenta encontrar una cuenta de Impuesto Exento (0%), o dejar null si el backend lo permite
-    CUENTAS_EXENTO_ID.cuenta_impuesto = cuentas_clasificadas.value.impuestos.find(c => c.nombre.toLowerCase().includes('exento'))?.id || null 
-    CUENTAS_EXENTO_ID.cuenta_ingreso = cuentas_clasificadas.value.ingreso[0]?.id || null
-    CUENTAS_EXENTO_ID.cuenta_costo = cuentas_clasificadas.value.costo[0]?.id || null
-
-    // Mensajes de advertencia si no se encuentra algo
-    if (!CUENTAS_GRAVADO_ID.cuenta_inventario) {
-        console.warn('Advertencia: No se pudo asignar una cuenta de Inventario por defecto. Revisa los códigos (1102).')
-    }
+    // CUENTAS EXENTO
+    CUENTAS_EXENTO_ID.cuenta_inventario = CUENTAS_GRAVADO_ID.cuenta_inventario
+    CUENTAS_EXENTO_ID.cuenta_impuesto =
+      cuentas_clasificadas.value.impuestos.find(c => c.nombre.toLowerCase().includes('exento'))?.id ||
+      CUENTAS_GRAVADO_ID.cuenta_impuesto ||
+      null
+    CUENTAS_EXENTO_ID.cuenta_ingreso = CUENTAS_GRAVADO_ID.cuenta_ingreso
+    CUENTAS_EXENTO_ID.cuenta_costo = CUENTAS_GRAVADO_ID.cuenta_costo
 
   } catch (error) {
     console.error('Error obteniendo cuentas padre:', error)
@@ -169,31 +168,60 @@ const obtenerCuentas = async () => {
 }
 
 
+// --- 4. Enviar datos ---
 const enviarDatos = async () => {
-  // Lógica para determinar qué IDs de cuenta usar
+
+  // VALIDACIÓN 1: precio venta ≥ costo
+  if (errorPrecio.value) {
+    $q.notify({
+      type: 'negative',
+      icon: 'error',
+      message: `El precio venta no puede ser menor que el precio costo`,
+      position: 'top',
+      timeout: 8000
+    })
+    return
+  }
+
   const cuentasSeleccionadas = tipoProducto.value === 'Gravado'
     ? CUENTAS_GRAVADO_ID
     : CUENTAS_EXENTO_ID
 
-  // Validación básica para cuentas esenciales
   if (!cuentasSeleccionadas.cuenta_inventario || !cuentasSeleccionadas.cuenta_ingreso) {
-      alert('Error: No se encontraron las cuentas contables por defecto. Las cuentas deben cargarse antes de enviar. Revisa la consola.')
-      return 
+    alert('Error: No se encontraron las cuentas contables por defecto.')
+    return
   }
 
+  // REGLA IVA
+  let precioFinal = precioVenta.value
+  if (tipoProducto.value === 'Gravado') {
+    const iva = precioVenta.value * 0.13
+    precioFinal = precioVenta.value - iva
+  }
+
+  // VALIDACIÓN 2: precio final nunca abajo del costo
+  if (precioFinal < precioCosto.value) {
+    $q.notify({
+      type: 'negative',
+      icon: 'error',
+      message: `Después de aplicar IVA el precio final (${precioFinal.toFixed(2)}) queda abajo del costo (${precioCosto.value}).`,
+      position: 'top',
+      timeout: 8000
+    })
+    return
+  }
+
+  // ENVIAR
   try {
     const productos = [{
       sku: sku.value,
       nombre: nombre.value,
-      precio_venta: precioVenta.value,
+      precio_venta: precioFinal,
       precio_costo: precioCosto.value,
-      
-      // Asignación automática de los IDs
       cuenta_inventario: cuentasSeleccionadas.cuenta_inventario,
       cuenta_impuesto: cuentasSeleccionadas.cuenta_impuesto,
       cuenta_ingreso: cuentasSeleccionadas.cuenta_ingreso,
       cuenta_costo: cuentasSeleccionadas.cuenta_costo,
-      
       descripcion: descripcion.value
     }]
 
@@ -203,17 +231,25 @@ const enviarDatos = async () => {
     )
 
     console.log('¡Producto agregado con éxito!', response.data)
-    alert(`¡Éxito! Producto agregado y clasificado como ${tipoProducto.value}. Revisa la BD y la consola.`)
+    $q.notify({
+      type: 'positive',
+      icon: 'check_circle',
+      message: `¡Éxito! Producto "${nombre.value}" agregado como ${tipoProducto.value}.`,
+      position: 'top',
+      timeout: 3000
+    })
+
   } catch (error) {
     console.error('Error al agregar producto:', error.response?.data || error)
-    alert('Error. Revisa la consola para ver los detalles del error.')
+    alert('Error al agregar producto.')
   }
 }
 
-// Cargar las cuentas al montar el componente
-onMounted(() => obtenerCuentas())
 
+// Cargar cuentas al montar
+onMounted(() => obtenerCuentas())
 </script>
+
 
 <style scoped lang="scss">
 /* --------------------------

@@ -9,8 +9,6 @@
       @click="exportPDF" 
     />
 
-    <p class="text-grey-7">Basado en datos reales del libro mayor</p>
-
     <!-- ============================
          ACTIVOS
     ============================ -->

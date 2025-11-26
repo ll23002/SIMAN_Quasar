@@ -283,6 +283,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import { useQuasar } from 'quasar' // 1. Importar useQuasar
+
+const $q = useQuasar() // 2. Inicializar Quasar
 
 const filasVenta = ref([])
 const enviando = ref(false)
@@ -396,6 +399,14 @@ const enviarDatos = async () => {
 
     console.log('¡Venta registrada con éxito!', response.data)
 
+    $q.notify({
+      type: 'positive',
+      icon: 'check_circle',
+      message: `¡Venta registrada con éxito! Total: ${formatearDinero(totalVenta.value)}`,
+      position: 'top',
+      timeout: 3000
+    })
+
     // Limpiar formulario
     filasVenta.value = []
     nombre.value = null
@@ -405,6 +416,15 @@ const enviarDatos = async () => {
 
   } catch (error) {
     console.error('Error al registrar la venta:', error.response?.data || error.message)
+
+    $q.notify({
+      type: 'negative',
+      icon: 'error',
+      message: 'Error al registrar la venta. Revisa la consola para más detalles.',
+      position: 'top',
+      timeout: 5000
+    })
+
   } finally {
     enviando.value = false
   }
