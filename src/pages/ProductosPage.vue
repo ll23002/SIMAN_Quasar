@@ -127,7 +127,7 @@ const CUENTAS_EXENTO_ID = {
 const obtenerCuentas = async () => {
   try {
     const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/obtener/cuentas_padre/')
-    
+
     cuentas.value = response.data.map(item => {
       const c = item.cuenta ?? item
       return {
@@ -168,11 +168,12 @@ const obtenerCuentas = async () => {
 }
 
 
-// --- 4. Enviar datos ---
 const enviarDatos = async () => {
 
-  // VALIDACIÓN 1: precio venta ≥ costo
-  if (errorPrecio.value) {
+  const precioVentaNum = Number(precioVenta.value)
+  const precioCostoNum = Number(precioCosto.value)
+
+  if (precioVentaNum < precioCostoNum) {
     $q.notify({
       type: 'negative',
       icon: 'error',
@@ -193,18 +194,20 @@ const enviarDatos = async () => {
   }
 
   // REGLA IVA
-  let precioFinal = precioVenta.value
+  let precioFinal = precioVentaNum
   if (tipoProducto.value === 'Gravado') {
-    const iva = precioVenta.value * 0.13
-    precioFinal = precioVenta.value - iva
+    const iva = precioVentaNum * 0.13
+    precioFinal = precioVentaNum - iva
+    // Redondear a 2 decimales para evitar errores de validación
+    precioFinal = Math.round(precioFinal * 100) / 100
   }
 
   // VALIDACIÓN 2: precio final nunca abajo del costo
-  if (precioFinal < precioCosto.value) {
+  if (precioFinal < precioCostoNum) {
     $q.notify({
       type: 'negative',
       icon: 'error',
-      message: `Después de aplicar IVA el precio final (${precioFinal.toFixed(2)}) queda abajo del costo (${precioCosto.value}).`,
+      message: `Después de aplicar IVA el precio final (${precioFinal.toFixed(2)}) queda abajo del costo (${precioCostoNum}).`,
       position: 'top',
       timeout: 8000
     })
@@ -217,7 +220,7 @@ const enviarDatos = async () => {
       sku: sku.value,
       nombre: nombre.value,
       precio_venta: precioFinal,
-      precio_costo: precioCosto.value,
+      precio_costo: precioCostoNum,
       cuenta_inventario: cuentasSeleccionadas.cuenta_inventario,
       cuenta_impuesto: cuentasSeleccionadas.cuenta_impuesto,
       cuenta_ingreso: cuentasSeleccionadas.cuenta_ingreso,
