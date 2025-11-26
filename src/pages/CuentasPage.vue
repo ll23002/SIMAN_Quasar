@@ -396,7 +396,7 @@ const esFormularioValido = computed(() => {
 
 const obtenerCuentas = async () => {
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/obtener/cuentas_padre/')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/obtener/cuentas_padre/')
 
     let data = response.data.map(c => c.cuenta ?? c)
     rawData.value = data
@@ -465,7 +465,7 @@ const enviarDatos = async () => {
       cuenta_padre_codigo: CuentaPadre.value.codigo,
     }]
 
-    await axios.post('http://178.128.79.42:8000/api/contabilidad/cuentas/crear/', payload)
+    await axios.post('http://167.172.219.5:8000/api/contabilidad/cuentas/crear/', payload)
 
     Notify.create({ type: 'positive', message: 'Cuenta creada exitosamente' })
     limpiarFormulario()

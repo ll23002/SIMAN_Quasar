@@ -275,7 +275,7 @@ const cargarReporte = async () => {
   loading.value = true
   try {
     const fechaBackend = fecha.value.replace(/\//g, '-')
-    const res = await axios.get(`http://178.128.79.42:8000/api/contabilidad/ventas_diarias/?fecha=${fechaBackend}`)
+    const res = await axios.get(`http://167.172.219.5:8000/api/contabilidad/ventas_diarias/?fecha=${fechaBackend}`)
 
     totales.value = res.data.meta
     filas.value = res.data.detalle

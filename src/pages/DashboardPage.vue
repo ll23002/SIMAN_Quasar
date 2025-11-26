@@ -205,7 +205,7 @@ const columns = [
 const rows = ref([])
 async function obtenerFacturas() {
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/facturas/obtener/')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/facturas/obtener/')
     rows.value = response.data
   } catch (error) {
     console.error('Error obteniendo facturas:', error)
@@ -215,7 +215,7 @@ async function obtenerFacturas() {
 
 async function obtener_por_cobrar() {
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/por_cobrar/')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/por_cobrar/')
     por_cobrar.value = response.data.total_por_cobrar
   } catch (error) {
     console.error('Error obteniendo valor:', error)
@@ -224,7 +224,7 @@ async function obtener_por_cobrar() {
 
 async function obtener_ventas_hoy() {
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/ventas_hoy/')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/ventas_hoy/')
     ventas_hoy.value = response.data.total_ventas
   } catch (error) {
     console.error('Error obteniendo valor:', error)
@@ -233,7 +233,7 @@ async function obtener_ventas_hoy() {
 
 async function obtener_pasivo_circulante() {
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/pasivo_circulante')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/pasivo_circulante')
     pasivo_circulante.value = response.data.total_saldo_actual
   } catch (error) {
     console.error('Error obteniendo valor:', error)
@@ -242,7 +242,7 @@ async function obtener_pasivo_circulante() {
 
 const cargarGrafico = async () => {
   try {
-    const { data } = await axios.get('http://178.128.79.42:8000/api/contabilidad/datos_grafica/')
+    const { data } = await axios.get('http://167.172.219.5:8000/api/contabilidad/datos_grafica/')
 
     chartOptions.value = {
       ...chartOptions.value,

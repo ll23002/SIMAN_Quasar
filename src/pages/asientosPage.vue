@@ -64,7 +64,7 @@ const loadingCierre = ref(false)
 const generarAjuste = async () => {
   loadingAjuste.value = true
   try {
-    const res = await axios.post('http://178.128.79.42:8000/api/contabilidad/asientos/generar-ajuste-iva/')
+    const res = await axios.post('http://167.172.219.5:8000/api/contabilidad/asientos/generar-ajuste-iva/')
     if (res.data.mensaje) {
       Notify.create({ type: 'info', message: res.data.mensaje })
     }
@@ -96,7 +96,7 @@ const generarCierre = async () => {
 
   loadingCierre.value = true
   try {
-    const res = await axios.post('http://178.128.79.42:8000/api/contabilidad/asientos/generar-cierre/')
+    const res = await axios.post('http://167.172.219.5:8000/api/contabilidad/asientos/generar-cierre/')
     Notify.create({ type: 'positive', message: res.data.mensaje })
     await obtenerAsientosContables()
     await obtenerPartidasCierreAjuste()
@@ -111,7 +111,7 @@ const generarCierre = async () => {
 async function obtenerAsientosContables () {
   try {
     const response = await axios.get(
-      'http://178.128.79.42:8000/api/contabilidad/asientos/obtener/'
+      'http://167.172.219.5:8000/api/contabilidad/asientos/obtener/'
     )
     rows.value = response.data
   } catch (error) {
@@ -144,7 +144,7 @@ async function generarBalanceInicial () {
     class: 'bg-dark-card text-white'
   }).onOk(async () => {
     try {
-      await axios.post('http://178.128.79.42:8000/api/contabilidad/balance_inicial/')
+      await axios.post('http://167.172.219.5:8000/api/contabilidad/balance_inicial/')
       Notify.create({ type: 'positive', message: 'Balance inicial generado correctamente' })
       await obtenerAsientosContables()
     } catch (error) {
@@ -157,7 +157,7 @@ async function generarBalanceInicial () {
 async function obtenerPartidasCierreAjuste () {
   try {
     const response = await axios.get(
-      'http://178.128.79.42:8000/api/contabilidad/asientos/ajuste-cierre/'
+      'http://167.172.219.5:8000/api/contabilidad/asientos/ajuste-cierre/'
     )
     rowsCierreAjuste.value = response.data
   } catch (error) {

@@ -296,7 +296,7 @@ const totals = computed(() => {
 const Balanza = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/libro_mayor/')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/libro_mayor/')
     rows.value = response.data
   } catch (error) {
     console.error('Error al cargar la balanza de comprobación:', error)

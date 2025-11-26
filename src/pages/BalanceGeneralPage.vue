@@ -1,20 +1,20 @@
 <template>
   <q-page padding>
     <h1 class="text-h5 q-mb-md">Balance General</h1>
-    <q-btn 
-      label="Exportar PDF" 
-      color="primary" 
-      icon="picture_as_pdf" 
+    <q-btn
+      label="Exportar PDF"
+      color="primary"
+      icon="picture_as_pdf"
       class="q-mb-md"
-      @click="exportPDF" 
+      @click="exportPDF"
     />
 
     <!-- ============================
          ACTIVOS
     ============================ -->
-    <q-expansion-item 
-      label="Activos" 
-      icon="account_balance" 
+    <q-expansion-item
+      label="Activos"
+      icon="account_balance"
       expand-separator
       default-opened
     >
@@ -242,7 +242,7 @@ const cuentas = ref([])
 // ========================================================
 async function cargarCuentas() {
   try {
-    const res = await axios.get("http://178.128.79.42:8000/api/contabilidad/libro_mayor/")
+    const res = await axios.get("http://167.172.219.5:8000/api/contabilidad/libro_mayor/")
     cuentas.value = res.data
   } catch (e) {
     console.error("Error cargando datos:", e)
@@ -261,7 +261,7 @@ function formatCurrency(value) {
   return num.toLocaleString("en-US", { style: "currency", currency: "USD" })
 }
 
-/*  
+/*
    Usa naturaleza igual que en la balanza:
    - D → saldo va al DEBE (positivo para activos/gastos)
    - C → saldo va al HABER (positivo para pasivos/patrimonio)

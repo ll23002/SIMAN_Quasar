@@ -23,7 +23,7 @@ const cuentasGastos = ref(new Map())
 async function obtenerAsientosContables() {
   loading.value = true
   try {
-    const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/asientos/obtener/')
+    const response = await axios.get('http://167.172.219.5:8000/api/contabilidad/asientos/obtener/')
     // EXCLUIR partidas de tipo "Cierre" y "Ajuste"
     asientos.value = response.data.filter(
       asiento => asiento.tipo_partida !== 'Cierre' && asiento.tipo_partida !== 'Ajuste'
