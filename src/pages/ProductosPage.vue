@@ -1,22 +1,31 @@
 <template>
   <q-page padding class="bg-dark-page productos-page">
 
-    <!-- 🔹 HEADER DEL MÓDULO -->
-    <div class="page-header flex items-center q-mb-xl">
-      <q-icon name="inventory_2" size="40px" color="cyan-4" class="q-mr-md" />
+    <div class="page-header flex items-center justify-between q-mb-xl">
+      <div class="flex items-center">
+        <q-icon name="inventory_2" size="40px" color="cyan-4" class="q-mr-md" />
 
-      <div>
-        <h1 class="page-title">Gestión de Productos</h1>
+        <div>
+          <h1 class="page-title">Gestión de Productos</h1>
 
-        <!-- Subtitle + icon inside a flex row -->
-        <div class="subtitle-row flex items-center">
-          <q-icon name="shopping_cart" size="18px" color="cyan-4" class="q-mr-sm" />
-          <p class="page-subtitle q-mb-none">Registro y clasificación contable automática</p>
+          <div class="subtitle-row flex items-center">
+            <q-icon name="shopping_cart" size="18px" color="cyan-4" class="q-mr-sm" />
+            <p class="page-subtitle q-mb-none">Registro y clasificación contable automática</p>
+          </div>
         </div>
       </div>
+
+      <q-btn
+        flat
+        round
+        color="grey-6"
+        icon="settings"
+        @click="abrirConfiguracion"
+      >
+        <q-tooltip>Configuración Avanzada de Cuentas</q-tooltip>
+      </q-btn>
     </div>
 
-    <!-- 🔹 FORMULARIO PRINCIPAL -->
     <div class="form-card q-pa-lg row q-gutter-md">
 
       <div class="col-12 col-md-5">
@@ -60,7 +69,6 @@
 
     </div>
 
-    <!-- 🔹 BOTÓN ENVIAR -->
     <div class="row justify-end q-mt-lg">
       <q-btn
         class="btn-submit"
@@ -72,12 +80,93 @@
       />
     </div>
 
+    <q-dialog v-model="showConfigDialog">
+      <q-card class="bg-dark-card text-white" style="min-width: 500px">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-cyan-4">
+            <q-icon name="account_tree" class="q-mr-sm"/>
+            Configuración Contable
+          </div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-caption text-grey-4 q-mb-md">
+            Personaliza las cuentas para productos <strong>{{ tipoProducto }}</strong>.
+          </div>
+
+          <q-select
+            outlined
+            dark
+            dense
+            class="styled-input q-mb-md"
+            v-model="cuentasActivas.cuenta_ingreso"
+            :options="cuentas_clasificadas.ingreso"
+            option-label="nombre"
+            option-value="id"
+            emit-value
+            map-options
+            label="Cuenta de Ingreso (Venta)"
+          />
+
+          <q-select
+            outlined
+            dark
+            dense
+            class="styled-input q-mb-md"
+            v-model="cuentasActivas.cuenta_inventario"
+            :options="cuentas_clasificadas.inventario"
+            option-label="nombre"
+            option-value="id"
+            emit-value
+            map-options
+            label="Cuenta de Inventario (Activo)"
+          />
+
+          <q-select
+            outlined
+            dark
+            dense
+            class="styled-input q-mb-md"
+            v-model="cuentasActivas.cuenta_costo"
+            :options="cuentas_clasificadas.costo"
+            option-label="nombre"
+            option-value="id"
+            emit-value
+            map-options
+            label="Cuenta de Costo de Venta"
+          />
+
+          <q-select
+            outlined
+            dark
+            dense
+            class="styled-input q-mb-md"
+            v-model="cuentasActivas.cuenta_impuesto"
+            :options="cuentas_clasificadas.impuestos"
+            option-label="nombre"
+            option-value="id"
+            emit-value
+            map-options
+            label="Cuenta de Impuesto (Pasivo)"
+          />
+
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" color="grey" v-close-popup />
+          <q-btn flat label="Aceptar" color="cyan-4" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, reactive, computed } from 'vue'
 import axios from 'axios'
 import { useQuasar } from 'quasar'
 
@@ -90,15 +179,14 @@ const precioVenta = ref(0)
 const precioCosto = ref(0)
 const descripcion = ref('')
 const tipoProducto = ref('Gravado')
+const showConfigDialog = ref(false)
 
-// --- Validación reactiva ---
 const errorPrecio = ref(false)
 
 watch([precioVenta, precioCosto], () => {
   errorPrecio.value = precioVenta.value < precioCosto.value
 })
 
-// --- 2. Cuentas ---
 const cuentas = ref([])
 
 const cuentas_clasificadas = ref({
@@ -108,22 +196,28 @@ const cuentas_clasificadas = ref({
   costo: []
 })
 
-const CUENTAS_GRAVADO_ID = {
+const CUENTAS_GRAVADO_ID = reactive({
   cuenta_inventario: null,
   cuenta_impuesto: null,
   cuenta_ingreso: null,
   cuenta_costo: null,
-}
+})
 
-const CUENTAS_EXENTO_ID = {
+const CUENTAS_EXENTO_ID = reactive({
   cuenta_inventario: null,
   cuenta_impuesto: null,
   cuenta_ingreso: null,
   cuenta_costo: null,
+})
+
+const cuentasActivas = computed(() => {
+  return tipoProducto.value === 'Gravado' ? CUENTAS_GRAVADO_ID : CUENTAS_EXENTO_ID
+})
+
+const abrirConfiguracion = () => {
+  showConfigDialog.value = true
 }
 
-
-// --- 3. Obtener cuentas ---
 const obtenerCuentas = async () => {
   try {
     const response = await axios.get('http://178.128.79.42:8000/api/contabilidad/obtener/cuentas_padre/')
@@ -132,7 +226,7 @@ const obtenerCuentas = async () => {
       const c = item.cuenta ?? item
       return {
         id: c.id,
-        nombre: c.nombre,
+        nombre: `[${c.codigo}] ${c.nombre}`,
         codigo: c.codigo,
         tipo: c.tipo,
         movimientos: c.movimientos
@@ -144,7 +238,7 @@ const obtenerCuentas = async () => {
     cuentas_clasificadas.value.ingreso = cuentas.value.filter(c => c.tipo === 'INGRESO' && c.movimientos)
     cuentas_clasificadas.value.costo = cuentas.value.filter(c => c.tipo === 'COSTO' && c.movimientos)
 
-    // CUENTAS GRAVADO
+    // CUENTAS GRAVADO (Asignación inicial automática)
     CUENTAS_GRAVADO_ID.cuenta_inventario = cuentas_clasificadas.value.inventario[0]?.id || null
     CUENTAS_GRAVADO_ID.cuenta_impuesto =
       cuentas_clasificadas.value.impuestos.find(c => c.nombre.toLowerCase().includes('iva'))?.id ||
@@ -153,7 +247,7 @@ const obtenerCuentas = async () => {
     CUENTAS_GRAVADO_ID.cuenta_ingreso = cuentas_clasificadas.value.ingreso[0]?.id || null
     CUENTAS_GRAVADO_ID.cuenta_costo = cuentas_clasificadas.value.costo[0]?.id || null
 
-    // CUENTAS EXENTO
+    // CUENTAS EXENTO (Asignación inicial automática)
     CUENTAS_EXENTO_ID.cuenta_inventario = CUENTAS_GRAVADO_ID.cuenta_inventario
     CUENTAS_EXENTO_ID.cuenta_impuesto =
       cuentas_clasificadas.value.impuestos.find(c => c.nombre.toLowerCase().includes('exento'))?.id ||
@@ -184,25 +278,20 @@ const enviarDatos = async () => {
     return
   }
 
-  const cuentasSeleccionadas = tipoProducto.value === 'Gravado'
-    ? CUENTAS_GRAVADO_ID
-    : CUENTAS_EXENTO_ID
+  const cuentasSeleccionadas = cuentasActivas.value
 
   if (!cuentasSeleccionadas.cuenta_inventario || !cuentasSeleccionadas.cuenta_ingreso) {
-    alert('Error: No se encontraron las cuentas contables por defecto.')
+    alert('Error: No se encontraron las cuentas contables por defecto o configuradas.')
     return
   }
 
-  // REGLA IVA
   let precioFinal = precioVentaNum
   if (tipoProducto.value === 'Gravado') {
     const iva = precioVentaNum * 0.13
     precioFinal = precioVentaNum - iva
-    // Redondear a 2 decimales para evitar errores de validación
     precioFinal = Math.round(precioFinal * 100) / 100
   }
 
-  // VALIDACIÓN 2: precio final nunca abajo del costo
   if (precioFinal < precioCostoNum) {
     $q.notify({
       type: 'negative',
@@ -214,7 +303,6 @@ const enviarDatos = async () => {
     return
   }
 
-  // ENVIAR
   try {
     const productos = [{
       sku: sku.value,
@@ -249,23 +337,16 @@ const enviarDatos = async () => {
 }
 
 
-// Cargar cuentas al montar
 onMounted(() => obtenerCuentas())
 </script>
 
 
 <style scoped lang="scss">
-/* --------------------------
-   🎨 Fondo general
---------------------------- */
 .bg-dark-page {
   background-color: #0b1120;
   min-height: 100vh;
 }
 
-/* --------------------------
-   🔹 Header del módulo
---------------------------- */
 .page-header {
   animation: fadeInDown 0.5s ease;
 }
@@ -292,9 +373,6 @@ onMounted(() => obtenerCuentas())
   padding: 0;
 }
 
-/* --------------------------
-   🎨 Contenedor principal
---------------------------- */
 .form-card {
   background: rgba(30, 41, 59, 0.9);
   border-radius: 16px;
@@ -307,10 +385,13 @@ onMounted(() => obtenerCuentas())
   transform: translateY(-4px);
 }
 
+.bg-dark-card {
+  background-color: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-/* --------------------------
-   🎨 Inputs consistentes
---------------------------- */
+
+
 .styled-input {
   :deep(.q-field__control) {
     background: rgba(255, 255, 255, 0.05);
@@ -329,11 +410,12 @@ onMounted(() => obtenerCuentas())
   :deep(.q-field__label) {
     color: #94a3b8;
   }
+
+  :deep(.q-item) {
+    color: #fff;
+  }
 }
 
-/* --------------------------
-   🎨 Botón de enviar
---------------------------- */
 .btn-submit {
   border-radius: 12px;
   padding: 10px 28px;
@@ -348,9 +430,6 @@ onMounted(() => obtenerCuentas())
   box-shadow: 0 6px 20px rgba(34, 211, 238, 0.3);
 }
 
-/* --------------------------
-   ✨ Animación del header
---------------------------- */
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -362,14 +441,9 @@ onMounted(() => obtenerCuentas())
   }
 }
 
-/* --------------------------
-   📌 Responsivo
---------------------------- */
 @media (max-width: 600px) {
   .form-card {
     padding: 1rem !important;
   }
 }
-
-
 </style>
