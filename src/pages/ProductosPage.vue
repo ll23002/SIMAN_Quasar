@@ -39,7 +39,6 @@
   </q-page>
 </template>
 
-
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
@@ -179,6 +178,7 @@ onMounted(() => obtenerCuentas())
 </script>
 
 <style lang="sass">
+// Variables de Colores (Personalizables)
 // ===== Tema Oscuro Profesional (Contabilidad) =====
 
 // Colores principales
@@ -285,7 +285,6 @@ $shadow-strong: rgba(0, 0, 0, 0.45);
   &:hover
     transform: translateY(-3px) scale(1.02) // Efecto al pasar el ratón
     box-shadow: 0 12px 25px rgba($primary-color, 0.6) // Sombra más fuerte
-    // Línea 110 original
 
 
 // Los estilos de tabla que ya tenías (manteniéndolos, aunque no se usan en este formulario)
