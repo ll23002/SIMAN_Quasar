@@ -75,14 +75,6 @@
           <q-card-section class="row items-center q-pb-none">
             <div class="text-h6">Tendencia de Ingresos vs Gastos</div>
             <q-space />
-            <q-btn-dropdown
-              outline
-              dense
-              color="grey-5"
-              label="Ultimos 6 meses"
-              class="no-shadow"
-              size="sm"
-            />
           </q-card-section>
 
           <q-card-section>
@@ -207,11 +199,6 @@ const columns = [
     align: 'left',
     field: 'cliente_nombre',
     sortable: true,
-  },
-  {
-    name: 'acciones',
-    label: 'ACCIONES',
-    align: 'center',
   },
 ]
 

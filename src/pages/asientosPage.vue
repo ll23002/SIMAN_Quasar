@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { Notify } from 'quasar'
+import { Notify, Dialog } from 'quasar'
 
 const columns = [
   {
@@ -56,6 +56,7 @@ const rows = ref([])
 const rowsCierreAjuste = ref([])
 
 const expandedRows = ref({})
+const expandedRowsCierreAjuste = ref({})
 
 const loadingAjuste = ref(false)
 const loadingCierre = ref(false)
@@ -78,7 +79,20 @@ const generarAjuste = async () => {
 }
 
 const generarCierre = async () => {
-  if (!confirm("¿Estás seguro? Esto dejará en cero todas las cuentas de ingresos y gastos.")) return;
+  let confirm = false
+  try {
+    await Dialog.create({
+      title: 'Confirmar Cierre Contable',
+      message: '¿Estás seguro? Esto dejará en cero todas las cuentas de ingresos y gastos.',
+      cancel: true,
+      persistent: true
+    })
+    confirm = true
+  } catch {
+    confirm = false
+  }
+
+  if (!confirm) return;
 
   loadingCierre.value = true
   try {
@@ -111,13 +125,33 @@ async function generarBalanceInicial () {
     Notify.create({ type: 'warning', message: 'Aún no han habido ventas' })
     return
   }
-  try {
-    await axios.post('http://178.128.79.42:8000/api/contabilidad/balance_inicial/')
-    Notify.create('Balance inicial generado correctamente')
-  } catch (error) {
-    console.error('Error generando balance inicial:', error)
-    Notify.create('Error al generar el balance inicial')
-  }
+
+  Dialog.create({
+    title: '<div class="text-h6"><q-icon name="warning" color="orange" class="q-mr-sm" />Advertencia: Balance Inicial</div>',
+    message: '<div class="text-body1">Esta acción debe realizarse <strong>ÚNICAMENTE al inicio del año fiscal</strong>.<br><br>¿Estás seguro de que deseas generar el Balance Inicial?<br><br>Esto creará la partida de apertura con los saldos actuales.</div>',
+    html: true,
+    cancel: {
+      label: 'Cancelar',
+      color: 'grey-7',
+      flat: true
+    },
+    ok: {
+      label: 'Sí, generar',
+      color: 'cyan-4',
+      push: true
+    },
+    persistent: true,
+    class: 'bg-dark-card text-white'
+  }).onOk(async () => {
+    try {
+      await axios.post('http://178.128.79.42:8000/api/contabilidad/balance_inicial/')
+      Notify.create({ type: 'positive', message: 'Balance inicial generado correctamente' })
+      await obtenerAsientosContables()
+    } catch (error) {
+      console.error('Error generando balance inicial:', error)
+      Notify.create({ type: 'negative', message: 'Error al generar el balance inicial' })
+    }
+  })
 }
 
 async function obtenerPartidasCierreAjuste () {
@@ -138,6 +172,14 @@ function toggleExpand (rowId) {
 
 function isExpanded (rowId) {
   return expandedRows.value[rowId] === true
+}
+
+function toggleExpandCierreAjuste (rowId) {
+  expandedRowsCierreAjuste.value[rowId] = !expandedRowsCierreAjuste.value[rowId]
+}
+
+function isExpandedCierreAjuste (rowId) {
+  return expandedRowsCierreAjuste.value[rowId] === true
 }
 
 onMounted(() => {
@@ -359,8 +401,8 @@ onMounted(() => {
                   dense
                   flat
                   color="cyan-4"
-                  :icon="isExpanded(props.row.id) ? 'expand_less' : 'expand_more'"
-                  @click="toggleExpand(props.row.id)"
+                  :icon="isExpandedCierreAjuste(props.row.id) ? 'expand_less' : 'expand_more'"
+                  @click="toggleExpandCierreAjuste(props.row.id)"
                 />
               </q-td>
               <q-td key="id" :props="props">
@@ -394,7 +436,7 @@ onMounted(() => {
               </q-td>
             </q-tr>
 
-            <q-tr v-show="isExpanded(props.row.id)" :props="props" class="bg-dark-page">
+            <q-tr v-show="isExpandedCierreAjuste(props.row.id)" :props="props" class="bg-dark-page">
               <q-td colspan="100%">
                 <div class="q-pa-md">
                   <div class="text-subtitle1 text-cyan-4 q-mb-md">

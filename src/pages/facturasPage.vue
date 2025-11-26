@@ -410,7 +410,7 @@ onMounted(() => {
 
                 <q-markup-table flat dark class="details-table bg-dark-card">
                   <thead>
-                    <tr class="bg-grey-9">
+                    <tr>
                       <th class="text-left text-grey-4">PRODUCTO</th>
                       <th class="text-right text-grey-4">CANTIDAD</th>
                       <th class="text-right text-grey-4">PRECIO/UNIT.</th>
@@ -448,7 +448,7 @@ onMounted(() => {
                   </tbody>
 
                   <tfoot v-if="props.row.detalles && props.row.detalles.length">
-                    <tr class="bg-grey-9">
+                    <tr>
                       <td colspan="3" class="text-right text-grey-4 text-weight-bold">
                         TOTAL:
                       </td>
