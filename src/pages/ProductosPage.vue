@@ -1,43 +1,81 @@
 <template>
-  <q-page padding class="page-container">
+  <q-page padding class="bg-dark-page productos-page">
 
-    <div class="q-pa-md row q-gutter-md custom-card shadow-10 rounded-borders">
-      <div class="col-12 col-md-5 input-column">
-        <q-input type="text" outlined class="full-width q-mb-md input-field" label="SKU" v-model="sku"/>
-        <q-input type="text" label="Nombre" outlined class="full-width q-mb-md input-field" v-model="nombre"/>
-        <q-input type="number" label="Precio Venta" outlined class="full-width q-mb-md input-field" v-model="precioVenta" prefix="$"/>
-        <q-input type="number" label="Precio Costo" outlined class="full-width q-mb-md input-field" v-model="precioCosto" prefix="$"/>
-        
-        <q-select
-          outlined
-          class="full-width q-mb-md input-field"
-          label="Tipo de Producto"
-          :options="['Gravado', 'Exento']"
-          v-model="tipoProducto"
-          hint="Gravado (con impuestos/IVA) o Exento (sin impuestos)"
-        />
-        
+    <!-- 🔹 HEADER DEL MÓDULO -->
+    <div class="page-header flex items-center q-mb-xl">
+      <q-icon name="inventory_2" size="40px" color="cyan-4" class="q-mr-md" />
+
+      <div>
+        <h1 class="page-title">Gestión de Productos</h1>
+
+        <!-- Subtitle + icon inside a flex row -->
+        <div class="subtitle-row flex items-center">
+          <q-icon name="shopping_cart" size="18px" color="cyan-4" class="q-mr-sm" />
+          <p class="page-subtitle q-mb-none">Registro y clasificación contable automática</p>
+        </div>
       </div>
+    </div>
+
+
+    <!-- 🔹 FORMULARIO PRINCIPAL -->
+    <div class="form-card q-pa-lg row q-gutter-md">
+
+      <div class="col-12 col-md-5">
+        <q-input type="text" outlined class="styled-input q-mb-md"
+                 label="SKU"
+                 v-model="sku">
+          <template #append>
+            <q-tooltip anchor="top middle" self="bottom middle">Código único del producto</q-tooltip>
+          </template>
+        </q-input>
+
+        <q-input type="text" outlined class="styled-input q-mb-md"
+                 label="Nombre"
+                 v-model="nombre" />
+
+        <q-input type="number" outlined class="styled-input q-mb-md"
+                 label="Precio Venta" prefix="$"
+                 v-model="precioVenta" />
+
+        <q-input type="number" outlined class="styled-input q-mb-md"
+                 label="Precio Costo" prefix="$"
+                 v-model="precioCosto" />
+
+        <q-select outlined class="styled-input q-mb-md"
+                  label="Tipo de Producto"
+                  :options="['Gravado', 'Exento']"
+                  v-model="tipoProducto"
+                  hint="Define si aplica IVA o está exento">
+          <template #append>
+            <q-tooltip>Define el comportamiento contable automático</q-tooltip>
+          </template>
+        </q-select>
+      </div>
+
       <q-space />
-      <div class="col-12 col-md-6 input-column">
-        <q-input type="textarea" label="Descripcion" outlined class="full-width q-mb-md input-field text-area" v-model="descripcion"/>
+
+      <div class="col-12 col-md-6">
+        <q-input type="textarea" outlined class="styled-input q-mb-md"
+                 label="Descripción" v-model="descripcion"/>
       </div>
 
     </div>
-    <div class="q-mt-lg button-container">
+
+    <!-- 🔹 BOTÓN ENVIAR -->
+    <div class="row justify-end q-mt-lg">
       <q-btn
-        class="submit-button"
+        class="btn-submit"
         label="Enviar datos"
         @click="enviarDatos"
-        color="primary"
-        size="lg"
-        rounded
+        color="cyan-4"
+        unelevated
         no-caps
       />
     </div>
 
   </q-page>
 </template>
+
 
 <script setup>
 import { onMounted, ref } from 'vue'
@@ -177,153 +215,122 @@ onMounted(() => obtenerCuentas())
 
 </script>
 
-<style lang="sass">
-// Variables de Colores (Personalizables)
-// ===== Tema Oscuro Profesional (Contabilidad) =====
+<style scoped lang="scss">
+/* --------------------------
+   🎨 Fondo general
+--------------------------- */
+.bg-dark-page {
+  background-color: #0b1120;
+  min-height: 100vh;
+}
 
-// Colores principales
-$primary-color: #4aa3ff;        // Azul profesional (más suave en dark)
-$secondary-color: #6c7bff;      // Azul-violeta sobrio para complementos
-$accent-color: #ffc85a;         // Dorado tenue para resaltar sin desentonar
+/* --------------------------
+   🔹 Header del módulo
+--------------------------- */
+.page-header {
+  animation: fadeInDown 0.5s ease;
+}
 
-// Fondos
-$background-light: #1b1f27;     // Fondo general oscuro
-$surface-color: #252a34;        // Superficie de tarjetas, inputs, paneles
+.page-title {
+  color: #e2e8f0;
+  font-size: 3.0rem;
+  font-weight: 700;
+  margin: 0;
+}
 
-// Texto
-$text-dark: #e9e9e9;            // Texto principal claro
-$text-light: #b5b5b5;           // Texto secundario
+.page-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #8ca3c3;
+}
 
-// Bordes y sombras
-$border-light: #3a3f47;         // Bordes sutiles en dark mode
-$shadow-light: rgba(0, 0, 0, 0.25);
-$shadow-strong: rgba(0, 0, 0, 0.45);
+.subtitle-row {
+  margin-top: 2px;
+}
 
+.page-subtitle {
+  margin: 0;
+  padding: 0;
+}
 
-// Estilo general de la página
-.page-container
-  background-color: $background-light
-  min-height: 100vh
-  display: flex
-  flex-direction: column
-  align-items: center
-  padding: 40px // Más padding para centrar mejor
-  font-family: 'Roboto', sans-serif // Una fuente moderna y legible
+/* --------------------------
+   🎨 Contenedor principal
+--------------------------- */
+.form-card {
+  background: rgba(30, 41, 59, 0.9);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+}
 
-// Contenedor principal del formulario (la "tarjeta")
-.custom-card
-  background-color: $surface-color
-  border-radius: 20px // Bordes más redondeados
-  padding: 30px
-  max-width: 1200px
-  width: 100%
-  box-shadow: 0 10px 30px $shadow-light // Sombra más pronunciada pero suave
-  transition: transform 0.3s ease-in-out // Animación al pasar el ratón
-  
-  &:hover
-    transform: translateY(-5px) // Efecto sutil al pasar el ratón
-
-// Columnas de input
-.input-column
-  display: flex
-  flex-direction: column
-  justify-content: space-between // Espacio equitativo
-  gap: 15px // Espacio entre inputs
-
-// Estilo para todos los q-input y q-select
-.input-field
-  .q-field__control
-    border-radius: 12px // Bordes redondeados para los inputs
-    background-color: $background-light // Fondo ligero para los inputs
-    transition: all 0.3s ease // Transición para focus
-
-  &.q-field--outlined .q-field__control
-    border-color: $border-light // Color de borde por defecto
-
-  &:hover .q-field__control
-    border-color: $secondary-color // Borde más visible al hover
-
-  &.q-field--focused .q-field__control
-    border-color: $primary-color !important // Borde primario al enfocar
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.2) // Sombra de enfoque sutil
-    background-color: $surface-color // Fondo blanco al enfocar
-
-  .q-field__label
-    color: $text-light
-    font-weight: 500
-
-  .q-field__native, .q-field__input
-    color: $text-dark
-    font-size: 16px
-
-// Estilo específico para el textarea
-.text-area
-  height: 100% // Ocupa el espacio disponible
-  .q-field__control
-    min-height: 120px // Altura mínima para el textarea
-
-// Contenedor del botón para centrarlo
-.button-container
-  width: 100%
-  max-width: 1200px
-  display: flex
-  justify-content: center
-  margin-top: 30px // Más espacio superior para el botón
-
-// Estilo del botón de enviar
-.submit-button
-  background: linear-gradient(45deg, $primary-color, $secondary-color) // Degradado
-  color: white
-  font-weight: bold
-  letter-spacing: 0.5px
-  padding: 15px 40px
-  font-size: 1.1em
-  border-radius: 50px // Botón "píldora"
-  box-shadow: 0 8px 20px rgba($primary-color, 0.4) // Sombra más prominente
-  transition: all 0.3s ease
-  
-  &:hover
-    transform: translateY(-3px) scale(1.02) // Efecto al pasar el ratón
-    box-shadow: 0 12px 25px rgba($primary-color, 0.6) // Sombra más fuerte
+.form-card:hover {
+  transform: translateY(-4px);
+}
 
 
-// Los estilos de tabla que ya tenías (manteniéndolos, aunque no se usan en este formulario)
-.my-sticky-header-column-table
-  height: 400px
-  max-width: 1300px
-  
-  td:first-child
-    background-color: $primary-color // Usando la variable
-    color: white
+/* --------------------------
+   🎨 Inputs consistentes
+--------------------------- */
+.styled-input {
+  :deep(.q-field__control) {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
 
-  tr th
-    position: sticky
-    z-index: 2
-    background: $primary-color // Usando la variable
-    color: white
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
 
-  thead tr:last-child th
-    top: 48px
-    z-index: 3
-  thead tr:first-child th
-    top: 0
-    z-index: 1
-  tr:first-child th:first-child
-    z-index: 3
+  :deep(.q-field__native) {
+    color: #fff !important;
+  }
 
-  td:first-child
-    z-index: 1
+  :deep(.q-field__label) {
+    color: #94a3b8;
+  }
+}
 
-  td:first-child, th:first-child
-    position: sticky
-    left: 0
+/* --------------------------
+   🎨 Botón de enviar
+--------------------------- */
+.btn-submit {
+  border-radius: 12px;
+  padding: 10px 28px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 0 0 transparent;
+  transition: 0.25s ease-in-out;
+}
 
-  tbody
-    scroll-margin-top: 48px
+.btn-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(34, 211, 238, 0.3);
+}
 
-.desc-cell
-  max-width: 400px
-  white-space: normal
-  overflow-wrap: anywhere
-  word-break: break-word
+/* --------------------------
+   ✨ Animación del header
+--------------------------- */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------
+   📌 Responsivo
+--------------------------- */
+@media (max-width: 600px) {
+  .form-card {
+    padding: 1rem !important;
+  }
+}
+
+
 </style>
